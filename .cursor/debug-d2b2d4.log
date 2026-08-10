@@ -1,0 +1,4 @@
+{"sessionId":"d2b2d4","runId":"pre-fix","hypothesisId":"H1","location":"proxy.ts:proxy-entry","message":"proxy module loaded and invoked","data":{"pathname":"/"},"timestamp":1785999699290}
+{"sessionId":"d2b2d4","runId":"pre-fix","hypothesisId":"H2","location":"lib/supabase/middleware.ts:updateSession","message":"updateSession auth check","data":{"pathname":"/","hasUser":false},"timestamp":1785999699316}
+{"sessionId":"d2b2d4","runId":"pre-fix","hypothesisId":"H1","location":"proxy.ts:proxy-entry","message":"proxy module loaded and invoked","data":{"pathname":"/login"},"timestamp":1785999699416}
+{"sessionId":"d2b2d4","runId":"pre-fix","hypothesisId":"H2","location":"lib/supabase/middleware.ts:updateSession","message":"updateSession auth check","data":{"pathname":"/login","hasUser":false},"timestamp":1785999699422}

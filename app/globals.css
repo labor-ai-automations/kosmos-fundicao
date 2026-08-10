@@ -1,0 +1,232 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-mansure-black: #0a0e14;
+  --color-mansure-blue: #1e5aa8;
+  --color-mansure-light: #f5f7fb;
+  --color-mansure-gray-dark: #2d3748;
+  --color-mansure-gray-light: #e2e8f0;
+  --color-mansure-gray-medium: #718096;
+  --color-mansure-border: #cbd5e0;
+  --color-mansure-hover: #edf2f7;
+  --color-mansure-success: #38a169;
+  --color-mansure-warning: #d69e2e;
+  --color-mansure-error: #e53e3e;
+  --color-mansure-dark: #718096;
+  --font-sans: "Montserrat", sans-serif;
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+  --mansure-black: #0a0e14;
+  --mansure-blue: #1e5aa8;
+  --mansure-light: #f5f7fb;
+  --mansure-gray-dark: #2d3748;
+  --mansure-gray-light: #e2e8f0;
+  --mansure-gray-medium: #718096;
+  --mansure-border: #cbd5e0;
+  --mansure-hover: #edf2f7;
+  --mansure-success: #38a169;
+  --mansure-warning: #d69e2e;
+  --mansure-error: #e53e3e;
+
+  --background: #0a0e14;
+  --foreground: #f5f7fb;
+  --card: #1a2332;
+  --card-foreground: #f5f7fb;
+  --popover: #f5f7fb;
+  --popover-foreground: #0a0e14;
+  --primary: #1e5aa8;
+  --primary-foreground: #f5f7fb;
+  --secondary: #2d3748;
+  --secondary-foreground: #f5f7fb;
+  --muted: #1a2332;
+  --muted-foreground: #718096;
+  --accent: #f5f7fb;
+  --accent-foreground: #0a0e14;
+  --destructive: #e53e3e;
+  --border: #cbd5e0;
+  --input: #e2e8f0;
+  --ring: #1e5aa8;
+  --radius: 0.5rem;
+  --sidebar: #0a0e14;
+  --sidebar-foreground: #f5f7fb;
+  --sidebar-primary: #1e5aa8;
+  --sidebar-primary-foreground: #f5f7fb;
+  --sidebar-accent: rgba(30, 90, 168, 0.2);
+  --sidebar-accent-foreground: #f5f7fb;
+  --sidebar-border: rgba(226, 232, 240, 0.12);
+  --sidebar-ring: #1e5aa8;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans antialiased;
+  }
+  body {
+    font-family: "Montserrat", sans-serif;
+    background-color: var(--mansure-black);
+    color: var(--mansure-light);
+  }
+  h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    background-color: var(--mansure-light) !important;
+    border: 1px solid var(--mansure-border) !important;
+    color: var(--mansure-black) !important;
+    font-family: "Montserrat", sans-serif !important;
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    border-radius: 4px !important;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--mansure-blue) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(30, 90, 168, 0.1) !important;
+    background-color: var(--mansure-light) !important;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--mansure-gray-medium) !important;
+    opacity: 1 !important;
+  }
+  option {
+    background-color: var(--mansure-light) !important;
+    color: var(--mansure-black) !important;
+  }
+}
+
+@layer utilities {
+  .kosmos-page-breadcrumb {
+    @apply text-[11px] font-medium uppercase tracking-[0.12em] text-mansure-gray-medium;
+  }
+  .kosmos-page-title {
+    @apply text-2xl font-bold tracking-tight text-mansure-light sm:text-3xl;
+  }
+  .kosmos-page-description {
+    @apply mt-1 text-sm text-mansure-gray-medium;
+  }
+  .kosmos-panel {
+    @apply rounded-lg border border-mansure-border/20 bg-[#1a2332] shadow-md;
+  }
+  .kosmos-selection-card {
+    @apply flex h-full cursor-pointer flex-col rounded-lg border border-mansure-border/20 bg-[#1a2332] p-5 transition-all duration-200 hover:border-mansure-blue/50 hover:bg-[#243044];
+  }
+  .kosmos-form-panel {
+    @apply rounded-lg border border-mansure-border bg-mansure-light p-6 text-mansure-black shadow-sm;
+  }
+  .kosmos-side-panel {
+    @apply rounded-lg border border-mansure-border bg-mansure-light p-4 text-mansure-black shadow-sm;
+  }
+  .kosmos-input {
+    @apply h-11 w-full rounded border border-mansure-border bg-mansure-light px-3 text-base text-mansure-black placeholder:text-mansure-gray-medium focus:border-mansure-blue focus:outline-none focus:ring-[3px] focus:ring-mansure-blue/10;
+  }
+  .kosmos-label {
+    @apply text-sm font-medium text-mansure-gray-dark;
+  }
+  .kosmos-table-header {
+    @apply border-0 bg-mansure-blue hover:bg-mansure-blue;
+  }
+  .kosmos-table-head {
+    @apply text-xs font-semibold uppercase tracking-wide text-mansure-light;
+  }
+  .kosmos-table-cell {
+    @apply text-sm text-mansure-gray-dark;
+  }
+  .kosmos-table-row {
+    @apply border-mansure-gray-light hover:bg-mansure-hover/60;
+  }
+  .mansure-calendar {
+    @apply rounded-lg border border-mansure-border bg-mansure-light p-0;
+  }
+  .mansure-calendar .rdp-month_caption {
+    @apply rounded-t-lg bg-mansure-black py-2 text-mansure-light;
+  }
+  .mansure-calendar .rdp-caption_label {
+    @apply text-mansure-light;
+  }
+  .mansure-calendar .rdp-day_button {
+    @apply text-mansure-black hover:bg-mansure-hover;
+  }
+  .mansure-calendar .rdp-selected .rdp-day_button {
+    @apply bg-mansure-blue text-mansure-light;
+  }
+  .mansure-calendar .rdp-today .rdp-day_button {
+    @apply border-2 border-mansure-blue bg-transparent font-semibold text-mansure-black;
+  }
+  .mansure-pagination-meta {
+    @apply text-sm font-medium text-mansure-gray-dark;
+  }
+  .mansure-modal-surface {
+    @apply border-mansure-border bg-mansure-light text-mansure-black;
+  }
+  .codigo-selector-action-head {
+    @apply sticky right-0 z-20 min-w-[6.75rem] bg-mansure-blue pl-3 shadow-[-6px_0_10px_-4px_rgba(10,14,20,0.18)];
+  }
+  .codigo-selector-action-cell {
+    @apply sticky right-0 z-10 min-w-[6.75rem] bg-mansure-light pl-3 shadow-[-6px_0_10px_-4px_rgba(10,14,20,0.08)];
+  }
+  .group:hover .codigo-selector-action-cell {
+    @apply bg-mansure-hover/60;
+  }
+}
