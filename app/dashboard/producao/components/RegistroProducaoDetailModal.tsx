@@ -240,6 +240,19 @@ export function RegistroProducaoDetailModal({
             {"maquina" in record && (
               <DetailCard icon={Settings} label="Máquina" value={record.maquina} />
             )}
+            {"funcao" in record && (
+              <DetailCard icon={Settings} label="Função" value={record.funcao} />
+            )}
+            {"turno" in record && (
+              <DetailCard icon={Clock} label="Turno" value={record.turno} />
+            )}
+            {"hora_inicial" in record && (
+              <DetailCard
+                icon={Clock}
+                label="Horário"
+                value={`${record.hora_inicial} — ${record.hora_final}`}
+              />
+            )}
             {"qtde_feita" in record && (
               <DetailCard icon={Package} label="Qtde feita" value={record.qtde_feita} />
             )}

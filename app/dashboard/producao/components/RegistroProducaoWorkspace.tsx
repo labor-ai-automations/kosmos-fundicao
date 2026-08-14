@@ -48,6 +48,11 @@ import {
   type RegistroRecord,
 } from "@/lib/registro-producao-utils";
 import { useRegistroProducao } from "../hooks/useRegistroProducao";
+import {
+  FUNCOES_OPCOES,
+  MACHARIAS_OPCOES,
+  TURNOS_OPCOES,
+} from "@/lib/constants/macharia";
 
 export function RegistroProducaoWorkspace({
   ambiente,
@@ -146,6 +151,28 @@ export function RegistroProducaoWorkspace({
   const renderEditFields = () => {
     if (!editRow) return null;
 
+    const renderSelectField = (
+      key: string,
+      options: readonly { value: string; label: string }[]
+    ) => (
+      <select
+        className="kosmos-input px-2 py-1.5 text-sm"
+        value={String(editForm[key] ?? "")}
+        onChange={(e) =>
+          setEditForm((prev) => ({
+            ...prev,
+            [key]: e.target.value,
+          }))
+        }
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    );
+
     return Object.entries(editRow)
       .filter(
         ([key]) =>
@@ -194,6 +221,21 @@ export function RegistroProducaoWorkspace({
             <DatePicker
               value={String(editForm[key] ?? "").split("T")[0]}
               onChange={(v) => setEditForm((prev) => ({ ...prev, [key]: v }))}
+            />
+          ) : ambiente === "macharia" && key === "maquina" ? (
+            renderSelectField(key, MACHARIAS_OPCOES)
+          ) : ambiente === "macharia" && key === "funcao" ? (
+            renderSelectField(key, FUNCOES_OPCOES)
+          ) : ambiente === "macharia" && key === "turno" ? (
+            renderSelectField(key, TURNOS_OPCOES)
+          ) : key === "hora_inicial" || key === "hora_final" ? (
+            <Input
+              type="time"
+              value={String(editForm[key] ?? "")}
+              onChange={(e) =>
+                setEditForm((prev) => ({ ...prev, [key]: e.target.value }))
+              }
+              className="kosmos-input"
             />
           ) : (
             <Input

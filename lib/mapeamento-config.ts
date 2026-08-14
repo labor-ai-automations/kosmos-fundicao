@@ -23,8 +23,8 @@ export interface MapeamentoFoto {
 
 export interface MapeamentoSecaoConfig {
   id: MapeamentoSecaoId;
-  titulo: string;
-  subtitulo: string;
+  /** Nome completo para exibição na UI e listagens */
+  nome: string;
   Icon: LucideIcon;
   heading: string;
 }
@@ -32,43 +32,37 @@ export interface MapeamentoSecaoConfig {
 export const MAPEAMENTO_SECOES: MapeamentoSecaoConfig[] = [
   {
     id: "ferramenta",
-    titulo: "Ferramenta",
-    subtitulo: "(Matrizes)",
+    nome: "Ferramenta (Matrizes)",
     Icon: Wrench,
     heading: "FERRAMENTA (MATRIZES)",
   },
   {
     id: "moldagem",
-    titulo: "Moldagem",
-    subtitulo: "& Pesos (Areia)",
+    nome: "Moldagem & Pesos (Areia)",
     Icon: Cog,
     heading: "MOLDAGEM & PESOS (AREIA)",
   },
   {
     id: "arvore",
-    titulo: "Árvore",
-    subtitulo: "",
+    nome: "Árvore",
     Icon: Trees,
     heading: "ÁRVORE",
   },
   {
     id: "peca",
-    titulo: "Peça",
-    subtitulo: "",
+    nome: "Peça",
     Icon: Box,
     heading: "PEÇA",
   },
   {
     id: "ferramenta_macharia",
-    titulo: "Ferramenta de",
-    subtitulo: "Macharia",
+    nome: "Ferramenta de Macharia",
     Icon: Package,
     heading: "FERRAMENTA DE MACHARIA",
   },
   {
     id: "macho_core",
-    titulo: "Macho /",
-    subtitulo: "Core",
+    nome: "Macho / Core",
     Icon: Cylinder,
     heading: "MACHO / CORE",
   },
@@ -113,13 +107,23 @@ export function isMapeamentoCompleto(
   return MAPEAMENTO_SECAO_IDS.every((id) => normalized[id]);
 }
 
+export function getSecaoNome(
+  secaoId: string
+): string {
+  return getMapeamentoSecaoConfig(secaoId)?.nome ?? secaoId;
+}
+
+export function getSecoesPreenchidas(
+  secoes: Partial<SecoesPreenchidas> | null | undefined
+): MapeamentoSecaoConfig[] {
+  const normalized = normalizeSecoesPreenchidas(secoes);
+  return MAPEAMENTO_SECOES.filter((s) => normalized[s.id]);
+}
+
 export function formatSecoesPreenchidas(
   secoes: Partial<SecoesPreenchidas> | null | undefined
 ): string {
-  const normalized = normalizeSecoesPreenchidas(secoes);
-  const labels = MAPEAMENTO_SECOES.filter((s) => normalized[s.id]).map(
-    (s) => s.titulo
-  );
+  const labels = getSecoesPreenchidas(secoes).map((s) => s.nome);
   return labels.length > 0 ? labels.join(", ") : "—";
 }
 

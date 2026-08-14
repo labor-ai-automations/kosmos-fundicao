@@ -138,13 +138,7 @@ export function MapeamentoInfoPanel() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-mansure-black">
-                          {secao.titulo}
-                          {secao.subtitulo && (
-                            <span className="font-normal text-mansure-gray-dark">
-                              {" "}
-                              {secao.subtitulo}
-                            </span>
-                          )}
+                          {secao.nome}
                         </p>
                         <ul className="mt-1 space-y-0.5 text-xs text-mansure-gray-dark">
                           <li>• Fotos do ferramental/peça nesta etapa</li>

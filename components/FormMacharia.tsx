@@ -46,16 +46,24 @@ import {
 } from "@/components/PesoRegistroField";
 import { DecimalInput } from "@/components/DecimalInput";
 
-const MAQUINAS = ["LIXAR", "ESMERILAR", "FURAR", "SERRAR", "POLIR"] as const;
-const FUNCOES = ["PREPARAÇÃO", "ACABAMENTO", "MONTAGEM", "INSPEÇÃO"] as const;
-const TURNOS = ["MANHÃ", "TARDE", "NOITE"] as const;
+import {
+  FUNCAO_VALUES,
+  FUNCOES_OPCOES,
+  MACHARIA_VALUES,
+  MACHARIAS_OPCOES,
+  TURNOS_OPCOES,
+} from "@/lib/constants/macharia";
 
 const machariaSchema = z
   .object({
     data: z.string().min(1, "Data obrigatória"),
     colaborador: z.string().min(1, "Colaborador obrigatório"),
-    maquina: z.string().min(1, "Máquina obrigatória"),
-    funcao: z.string().min(1, "Função obrigatória"),
+    maquina: z.enum(MACHARIA_VALUES, {
+      errorMap: () => ({ message: "Máquina obrigatória" }),
+    }),
+    funcao: z.enum(FUNCAO_VALUES, {
+      errorMap: () => ({ message: "Função obrigatória" }),
+    }),
     turno: z.string().min(1, "Turno obrigatório"),
     codigo: z.string().min(1, "Código obrigatório"),
     hora_inicial: z.string().min(1, "Hora inicial obrigatória"),
@@ -83,6 +91,7 @@ const historyColumns: HistoryColumn<ProducaoMacharia>[] = [
     render: (row) => row.colaborador,
   },
   { key: "maquina", header: "Máquina", render: (row) => row.maquina },
+  { key: "funcao", header: "Função", render: (row) => row.funcao },
   {
     key: "qtde_feita",
     header: "Qtde Feita",
@@ -126,9 +135,9 @@ export function FormMacharia({
     defaultValues: {
       data: todayDbString(),
       codigo: "",
-      maquina: MAQUINAS[0],
-      funcao: FUNCOES[0],
-      turno: TURNOS[0],
+      maquina: MACHARIAS_OPCOES[0].value,
+      funcao: FUNCOES_OPCOES[0].value,
+      turno: TURNOS_OPCOES[0].value,
       qtde_perdida: 0,
       observacao: "",
     },
@@ -183,9 +192,9 @@ export function FormMacharia({
       reset({
         data: todayDbString(),
         colaborador: "",
-        maquina: MAQUINAS[0],
-        funcao: FUNCOES[0],
-        turno: TURNOS[0],
+        maquina: MACHARIAS_OPCOES[0].value,
+        funcao: FUNCOES_OPCOES[0].value,
+        turno: TURNOS_OPCOES[0].value,
         codigo: "",
         hora_inicial: "",
         hora_final: "",
@@ -260,9 +269,9 @@ export function FormMacharia({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {MAQUINAS.map((m) => (
-                        <SelectItem key={m} value={m}>
-                          {m}
+                      {MACHARIAS_OPCOES.map((m) => (
+                        <SelectItem key={m.value} value={m.value}>
+                          {m.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -281,9 +290,9 @@ export function FormMacharia({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {FUNCOES.map((f) => (
-                        <SelectItem key={f} value={f}>
-                          {f}
+                      {FUNCOES_OPCOES.map((f) => (
+                        <SelectItem key={f.value} value={f.value}>
+                          {f.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -302,9 +311,9 @@ export function FormMacharia({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {TURNOS.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
+                      {TURNOS_OPCOES.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>
+                          {t.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Edit2, FileDown, Plus, Trash2 } from "lucide-react";
+import { Archive, Edit2, FileDown, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { HoverTooltip } from "@/components/ui/hover-tooltip";
 import {
   Table,
   TableBody,
@@ -12,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatSecoesPreenchidas } from "@/lib/mapeamento-config";
+import { SecoesPreenchidasPills } from "./components/SecoesPreenchidasPills";
 import {
   STATUS_OPERACIONAL_LABELS,
   type MapeamentoStatusOperacional,
@@ -107,29 +108,6 @@ export default function MapeamentoPage() {
     setOpenHubModal(true);
   };
 
-  const handleDeletarRegistro = async (
-    codigo: string,
-    event?: React.MouseEvent
-  ) => {
-    event?.stopPropagation();
-    if (!confirm(`Deletar o registro do código ${codigo}?`)) return;
-
-    try {
-      const res = await fetch(
-        `/api/mapeamento/registros/${encodeURIComponent(codigo)}`,
-        { method: "DELETE" }
-      );
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Erro ao deletar");
-      }
-      toast.success("Registro removido");
-      carregarRegistros();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erro ao deletar");
-    }
-  };
-
   const handleAbrirExportPdf = (codigo: string, event?: React.MouseEvent) => {
     event?.stopPropagation();
     setCodigoExportar(codigo);
@@ -209,8 +187,10 @@ export default function MapeamentoPage() {
                       onClick={() => handleAbrirStatus(registro.codigo)}
                     />
                   </TableCell>
-                  <TableCell className="kosmos-table-cell text-mansure-gray-dark">
-                    {formatSecoesPreenchidas(registro.secoes_preenchidas)}
+                  <TableCell className="kosmos-table-cell">
+                    <SecoesPreenchidasPills
+                      secoes={registro.secoes_preenchidas}
+                    />
                   </TableCell>
                   <TableCell className="kosmos-table-cell text-mansure-gray-dark">
                     {new Date(registro.criado_em).toLocaleDateString("pt-BR")}
@@ -241,16 +221,32 @@ export default function MapeamentoPage() {
                       <FileDown className="size-3" />
                       PDF
                     </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="mansureOutline"
-                      onClick={(e) => handleDeletarRegistro(registro.codigo, e)}
-                      className="ml-1 gap-1 text-mansure-gray-dark"
+                    <HoverTooltip
+                      className="ml-1"
+                      content={
+                        <>
+                          <strong className="font-semibold">Em breve</strong>
+                          <span className="mt-0.5 block text-mansure-light/90">
+                            Arquivar registros concluídos ou inativos sem
+                            removê-los permanentemente.
+                          </span>
+                        </>
+                      }
                     >
-                      <Trash2 className="size-3" />
-                      Deletar
-                    </Button>
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="mansureOutline"
+                          disabled
+                          tabIndex={-1}
+                          className="pointer-events-none cursor-not-allowed gap-1 text-mansure-gray-dark opacity-60"
+                        >
+                          <Archive className="size-3" />
+                          Arquivar
+                        </Button>
+                      </span>
+                    </HoverTooltip>
                   </TableCell>
                 </TableRow>
               ))}

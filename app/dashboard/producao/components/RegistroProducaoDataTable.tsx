@@ -293,6 +293,18 @@ export function RegistroProducaoDataTable({
       cell: ({ row }: { row: { original: RegistroRecord } }) => {
         const text = formatRegistroCell(row.original, columnId, ambiente);
         const shouldHighlight = columnId === "codigo" || columnId === "observacao";
+
+        if (
+          ambiente === "macharia" &&
+          (columnId === "maquina" || columnId === "funcao")
+        ) {
+          return (
+            <span className="inline-flex rounded-full bg-mansure-blue/10 px-2.5 py-0.5 text-xs font-medium text-mansure-blue">
+              {text}
+            </span>
+          );
+        }
+
         return (
           <span className="text-mansure-black">
             {shouldHighlight

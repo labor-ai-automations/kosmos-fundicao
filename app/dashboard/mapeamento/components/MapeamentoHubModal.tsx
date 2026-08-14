@@ -166,15 +166,10 @@ export function MapeamentoHubModal({
                     }`}
                   >
                     <Icon className="size-8 text-mansure-blue" />
-                    <div className="text-center">
-                      <p className="font-semibold text-mansure-black">
-                        {secao.titulo}
+                    <div className="px-2 text-center">
+                      <p className="text-sm leading-snug font-semibold text-mansure-black">
+                        {secao.nome}
                       </p>
-                      {secao.subtitulo && (
-                        <p className="text-xs text-mansure-gray-medium">
-                          {secao.subtitulo}
-                        </p>
-                      )}
                       {preenchida && (
                         <p className="mt-1 text-xs font-semibold text-mansure-blue">
                           Preenchida

@@ -1,4 +1,5 @@
 import { formatDateDisplay, formatTimeRange } from "@/lib/auth";
+import { calcularDuracaoMacharia } from "@/lib/constants/macharia";
 import type { ProducaoAmbiente } from "@/lib/producao-config";
 import { formatObservacaoDisplay } from "@/lib/producao-observacao";
 import type {
@@ -71,6 +72,23 @@ export function formatRegistroCell(
       return "colaborador" in record ? record.colaborador : "—";
     case "maquina":
       return "maquina" in record ? record.maquina : "—";
+    case "funcao":
+      return "funcao" in record ? record.funcao : "—";
+    case "turno":
+      return "turno" in record ? record.turno : "—";
+    case "hora_inicial":
+      return "hora_inicial" in record ? record.hora_inicial : "—";
+    case "hora_final":
+      return "hora_final" in record ? record.hora_final : "—";
+    case "duracao":
+      if ("hora_inicial" in record) {
+        return calcularDuracaoMacharia(record.hora_inicial, record.hora_final);
+      }
+      return "—";
+    case "peso_2":
+      return "peso_registro_2" in record && record.peso_registro_2 != null
+        ? String(record.peso_registro_2)
+        : "—";
     case "qtde_feita":
       return "qtde_feita" in record ? String(record.qtde_feita) : "—";
     case "horario":
@@ -185,7 +203,14 @@ export function recordToExportRow(
       ...base,
       Colaborador: row.colaborador,
       Máquina: row.maquina,
+      Função: row.funcao,
+      Turno: row.turno,
+      "Hora Inicial": row.hora_inicial,
+      "Hora Final": row.hora_final,
+      Duração: calcularDuracaoMacharia(row.hora_inicial, row.hora_final),
       "Qtde Feita": row.qtde_feita,
+      "Qtde Perdida": row.qtde_perdida,
+      "Peso 2 (kg)": row.peso_registro_2,
       Horário: formatTimeRange(row.hora_inicial, row.hora_final),
     };
   }
