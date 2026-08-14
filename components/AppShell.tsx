@@ -14,11 +14,11 @@ function AppShellLayout({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           "flex min-h-screen flex-col transition-all duration-300",
-          collapsed ? "md:pl-16" : "md:pl-64"
+          collapsed ? "md:pl-[4.5rem]" : "md:pl-72"
         )}
       >
         <DashboardHeader />
-        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+        <main className="flex-1 px-4 py-4 lg:px-8 lg:py-5">{children}</main>
       </div>
     </div>
   );

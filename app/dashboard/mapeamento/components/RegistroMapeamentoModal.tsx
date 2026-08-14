@@ -36,7 +36,7 @@ const ITEMS_PER_PAGE = 20;
 interface RegistroMapeamentoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onRegistered: () => void;
+  onRegistered: (codigo: string) => void;
 }
 
 function itemToSpecs(item: RefugoSelectorItem): MapeamentoItemSpecs {
@@ -64,6 +64,9 @@ export function RegistroMapeamentoModal({
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selected, setSelected] = useState<MapeamentoItemSpecs | null>(null);
+  const [ehMeiaPlaca, setEhMeiaPlaca] = useState(false);
+  const [ehManual, setEhManual] = useState(false);
+  const [segundoCodigo, setSegundoCodigo] = useState("");
   const [erro, setErro] = useState("");
 
   const filterColumns = REFUGO_SELECTOR_COLUMNS.filter((col) => col !== "codigo");
@@ -122,12 +125,21 @@ export function RegistroMapeamentoModal({
 
   const handleClose = () => {
     setSelected(null);
+    setEhMeiaPlaca(false);
+    setEhManual(false);
+    setSegundoCodigo("");
     setErro("");
     onClose();
   };
 
+  const canRegister =
+    !!selected && (!ehMeiaPlaca || segundoCodigo.trim().length > 0);
+
   const handleSelect = (item: RefugoSelectorItem) => {
     setSelected(itemToSpecs(item));
+    setEhMeiaPlaca(false);
+    setEhManual(false);
+    setSegundoCodigo("");
     setErro("");
   };
 
@@ -154,9 +166,29 @@ export function RegistroMapeamentoModal({
         throw new Error(data.error ?? "Erro ao registrar");
       }
 
+      if (selected.origem === "vick") {
+        const configRes = await fetch("/api/mapeamento/vick-config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            codigo: selected.codigo,
+            eh_meia_placa: ehMeiaPlaca,
+            eh_manual: ehManual,
+            segundo_codigo: ehMeiaPlaca ? segundoCodigo.trim() : null,
+          }),
+        });
+        if (!configRes.ok) {
+          const configData = await configRes.json();
+          throw new Error(configData.error ?? "Erro ao salvar config Vick");
+        }
+      }
+
       toast.success(`Código ${selected.codigo} registrado`);
-      onRegistered();
+      onRegistered(selected.codigo);
       setSelected(null);
+      setEhMeiaPlaca(false);
+      setEhManual(false);
+      setSegundoCodigo("");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Erro ao registrar código";
@@ -255,6 +287,43 @@ export function RegistroMapeamentoModal({
                     : "—"}
                 </p>
               </div>
+
+              {selected.origem === "vick" && (
+                <div className="mt-4 space-y-3 border-t border-mansure-gray-light pt-4">
+                  <p className="text-sm font-semibold text-mansure-black">
+                    Configuração Vick
+                  </p>
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-mansure-gray-dark">
+                    <input
+                      type="checkbox"
+                      checked={ehMeiaPlaca}
+                      onChange={(e) => {
+                        setEhMeiaPlaca(e.target.checked);
+                        if (!e.target.checked) setSegundoCodigo("");
+                      }}
+                      className="size-4 accent-mansure-blue"
+                    />
+                    Meia Placa
+                  </label>
+                  {ehMeiaPlaca && (
+                    <Input
+                      placeholder="Segundo código (obrigatório)"
+                      value={segundoCodigo}
+                      onChange={(e) => setSegundoCodigo(e.target.value)}
+                      className="max-w-xs"
+                    />
+                  )}
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-mansure-gray-dark">
+                    <input
+                      type="checkbox"
+                      checked={ehManual}
+                      onChange={(e) => setEhManual(e.target.checked)}
+                      className="size-4 accent-mansure-blue"
+                    />
+                    Manual (Vick)
+                  </label>
+                </div>
+              )}
             </div>
           )}
 
@@ -376,7 +445,7 @@ export function RegistroMapeamentoModal({
           <Button
             type="button"
             onClick={handleRegistrar}
-            disabled={saving || !selected}
+            disabled={saving || !canRegister}
             variant="mansurePrimary"
             className="gap-2"
           >

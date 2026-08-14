@@ -12,6 +12,9 @@ interface ItemCodigoPickerProps {
   codigo: string | undefined;
   onSelect: (item: SelectorItem) => void;
   error?: string;
+  label?: string;
+  /** Oculta um código da listagem (ex.: Código A ao escolher Código Par) */
+  excludeCodigo?: string;
   children?: React.ReactNode;
 }
 
@@ -20,6 +23,8 @@ export function ItemCodigoPicker({
   codigo,
   onSelect,
   error,
+  label = "Código",
+  excludeCodigo,
   children,
 }: ItemCodigoPickerProps) {
   const [open, setOpen] = useState(false);
@@ -27,7 +32,7 @@ export function ItemCodigoPicker({
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        <Label className="kosmos-label">Código</Label>
+        <Label className="kosmos-label">{label}</Label>
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -51,6 +56,7 @@ export function ItemCodigoPicker({
         isOpen={open}
         onSelect={onSelect}
         onClose={() => setOpen(false)}
+        excludeCodigo={excludeCodigo}
       />
     </div>
   );

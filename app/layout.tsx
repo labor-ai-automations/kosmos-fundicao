@@ -4,7 +4,7 @@ import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "KOSMOS Fundição",
+  title: "KOSMOS Controle de Produção",
   description: "Inteligência que transforma dados em decisões",
 };
 

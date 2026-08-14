@@ -5,6 +5,10 @@ export interface ProducaoFormProps {
   onSaved?: () => void;
   formId?: string;
   hideSubmit?: boolean;
+  onFormStateChange?: (state: {
+    isValid: boolean;
+    isSubmitting: boolean;
+  }) => void;
 }
 
 export const PRODUCAO_FORM_IDS: Record<ProducaoAmbiente, string> = {

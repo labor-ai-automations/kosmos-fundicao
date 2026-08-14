@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Box, Package, Wrench } from "lucide-react";
+import { Box, ChevronRight, Package, Wrench } from "lucide-react";
 import { getItemCounts } from "@/lib/api-calls";
 import type { ItemAmbiente } from "@/lib/types";
 
@@ -15,7 +15,7 @@ const ambientes: {
   {
     key: "vick",
     title: "VICK",
-    description: "Cadastro base de fornada VICK",
+    description: "Cadastro base VICK",
     icon: Box,
   },
   {
@@ -43,7 +43,7 @@ export function ItensHub() {
 
   return (
     <div>
-      <p className="mb-6 max-w-2xl text-sm text-accent/60">
+      <p className="mb-6 max-w-2xl text-sm text-mansure-gray-medium">
         Selecione o ambiente para gerenciar códigos e dados base.
       </p>
 
@@ -54,20 +54,22 @@ export function ItensHub() {
             href={`/dashboard/itens/${key}`}
             className="group block h-full"
           >
-            <article className="flex h-full cursor-pointer flex-col rounded-xl border border-[rgba(233,237,242,0.12)] bg-[rgba(36,94,143,0.1)] p-5 transition-all duration-200 hover:border-secondary/50 hover:bg-[rgba(36,94,143,0.2)]">
+            <article className="kosmos-selection-card">
               <div className="mb-4 flex items-start justify-between gap-3">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-[rgba(6,182,212,0.12)]">
-                  <Icon className="size-5 text-secondary" strokeWidth={2} />
+                <div className="flex size-10 items-center justify-center rounded-lg bg-mansure-blue/15">
+                  <Icon className="size-5 text-mansure-blue" strokeWidth={2} />
                 </div>
-                <ArrowRight className="size-4 shrink-0 text-accent/30 transition group-hover:translate-x-0.5 group-hover:text-secondary" />
+                <ChevronRight className="size-4 shrink-0 text-mansure-gray-medium transition group-hover:translate-x-0.5 group-hover:text-mansure-blue" />
               </div>
-              <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-accent">
+              <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-mansure-light">
                 {title}
               </h2>
-              <p className="mb-4 text-xs text-accent/50">{description}</p>
-              <p className="mt-auto text-lg font-semibold text-accent">
+              <p className="mb-4 text-xs leading-relaxed text-mansure-gray-medium">
+                {description}
+              </p>
+              <p className="mt-auto text-lg font-semibold text-mansure-light">
                 {counts[key]}
-                <span className="ml-1 text-xs font-normal text-accent/50">
+                <span className="ml-1 text-xs font-normal text-mansure-gray-medium">
                   itens cadastrados
                 </span>
               </p>

@@ -5,8 +5,11 @@ import { CalendarIcon } from "lucide-react";
 import { formatDateDisplay, formatDateForDb } from "@/lib/auth";
 import { parseDbDate, todayDbString } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { CalendarFooter } from "@/components/CalendarFooter";
+import {
+  Calendar,
+  calendarPopoverClassName,
+} from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface DatePickerProps {
@@ -52,42 +55,25 @@ export function DatePicker({
         </span>
         <CalendarIcon className="size-4 shrink-0 text-mansure-blue" />
       </PopoverTrigger>
-      <PopoverContent className="mansure-calendar w-auto p-0" align="start">
+      <PopoverContent className={calendarPopoverClassName} align="start">
         <Calendar
           mode="single"
           selected={selected}
           onSelect={handleSelect}
           defaultMonth={selected}
-          className="mansure-calendar"
         />
-        <div className="flex items-center justify-between border-t border-mansure-border px-3 py-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-mansure-blue hover:text-mansure-blue/80"
-            onClick={() => {
-              onChange("");
-              setOpen(false);
-              onBlur?.();
-            }}
-          >
-            Limpar
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-mansure-blue hover:text-mansure-blue/80"
-            onClick={() => {
-              onChange(todayDbString());
-              setOpen(false);
-              onBlur?.();
-            }}
-          >
-            Hoje
-          </Button>
-        </div>
+        <CalendarFooter
+          onClear={() => {
+            onChange("");
+            setOpen(false);
+            onBlur?.();
+          }}
+          onToday={() => {
+            onChange(todayDbString());
+            setOpen(false);
+            onBlur?.();
+          }}
+        />
       </PopoverContent>
     </Popover>
   );

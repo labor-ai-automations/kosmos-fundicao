@@ -41,6 +41,7 @@ interface ItemSelectorModalProps {
   isOpen: boolean;
   onSelect: (item: SelectorItem) => void;
   onClose: () => void;
+  excludeCodigo?: string;
 }
 
 async function loadItemsByAmbiente(
@@ -61,6 +62,7 @@ export function ItemSelectorModal({
   isOpen,
   onSelect,
   onClose,
+  excludeCodigo,
 }: ItemSelectorModalProps) {
   const [items, setItems] = useState<SelectorItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -96,7 +98,11 @@ export function ItemSelectorModal({
   }, [isOpen, loadItems]);
 
   const filteredItems = useMemo(() => {
+    const exclude = excludeCodigo?.trim();
     return items.filter((item) => {
+      if (exclude && String(item.codigo ?? "").trim() === exclude) {
+        return false;
+      }
       if (!itemMatchesSearch(item, searchQuery, columns)) return false;
 
       return Object.entries(filters).every(([key, value]) => {
@@ -107,7 +113,7 @@ export function ItemSelectorModal({
         return cell.includes(value.toLowerCase());
       });
     });
-  }, [items, searchQuery, filters, columns]);
+  }, [items, searchQuery, filters, columns, excludeCodigo]);
 
   const totalPages = Math.max(
     1,

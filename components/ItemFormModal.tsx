@@ -270,19 +270,19 @@ export function ItemFormModal({
             ))}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 border-t border-mansure-gray-light bg-mansure-light sm:justify-end">
             <Button
               type="button"
-              variant="outline"
+              variant="mansureOutline"
               onClick={onClose}
-              className="border-mansure-gray-light"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
+              variant="mansurePrimary"
               disabled={form.formState.isSubmitting}
-              className="bg-mansure-blue hover:bg-mansure-blue/90"
+              className="font-semibold"
             >
               {form.formState.isSubmitting ? "Salvando..." : "Salvar"}
             </Button>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,46 @@ const loginSchema = z.object({
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
+
+function RadarGraphic() {
+  return (
+    <svg
+      viewBox="0 0 400 400"
+      className="size-[280px] sm:size-[340px] lg:size-[380px]"
+      aria-hidden
+    >
+      {[60, 100, 140, 180, 220, 260].map((r) => (
+        <circle
+          key={r}
+          cx="200"
+          cy="200"
+          r={r}
+          fill="none"
+          stroke="rgba(30, 90, 168, 0.22)"
+          strokeWidth="1"
+        />
+      ))}
+      {[
+        [200, 100],
+        [270, 155],
+        [130, 185],
+        [240, 230],
+        [160, 260],
+        [290, 210],
+        [200, 300],
+      ].map(([cx, cy], i) => (
+        <circle
+          key={i}
+          cx={cx}
+          cy={cy}
+          r="3.5"
+          fill="rgba(30, 90, 168, 0.45)"
+        />
+      ))}
+      <circle cx="200" cy="200" r="5" fill="rgba(30, 90, 168, 0.6)" />
+    </svg>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,66 +93,88 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-mansure-black via-mansure-black to-mansure-blue/30">
-      <div className="absolute inset-0 opacity-10">
-        <svg viewBox="0 0 1200 800" className="h-full w-full" aria-hidden>
-          <defs>
-            <pattern
-              id="grid"
-              width="40"
-              height="40"
-              patternUnits="userSpaceOnUse"
-            >
-              <path
-                d="M 40 0 L 0 0 0 40"
-                fill="none"
-                stroke="white"
-                strokeWidth="0.5"
-              />
-            </pattern>
-          </defs>
-          <rect width="1200" height="800" fill="url(#grid)" />
-        </svg>
-      </div>
+    <div className="flex min-h-screen flex-col lg:flex-row">
+      {/* Marca — fundo escuro, texto à direita do painel */}
+      <section className="relative flex flex-1 flex-col justify-center overflow-hidden bg-mansure-black px-8 py-14 sm:px-12 lg:min-h-screen lg:py-0 lg:pl-12 lg:pr-8 xl:pl-16 xl:pr-12">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          aria-hidden
+        >
+          <div className="absolute top-1/3 left-1/2 size-72 -translate-x-1/2 rounded-full bg-mansure-blue/15 blur-[100px]" />
+        </div>
 
-      <div className="absolute top-20 right-20 size-96 rounded-full bg-mansure-blue opacity-10 blur-3xl" />
-      <div className="absolute bottom-0 left-0 size-96 rounded-full bg-mansure-blue opacity-5 blur-3xl" />
-
-      <div className="relative z-10 w-full max-w-md px-4">
-        <div className="rounded-2xl border border-white/20 bg-white/10 px-8 py-12 shadow-2xl backdrop-blur-lg">
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              KOSMOS
-            </h1>
-            <p className="mt-1 text-sm font-semibold uppercase tracking-[0.25em] text-mansure-light">
-              Fundição
+        <div className="relative z-10 flex w-full justify-center lg:justify-end">
+          <div className="w-full max-w-md text-left">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-mansure-gray-medium">
+              MANSURE
             </p>
-            <p className="mt-4 text-xs font-light text-gray-300">
-              Inteligência que transforma dados em decisões
+
+            <div className="relative mt-5 lg:mt-6">
+              <div
+                className="pointer-events-none absolute top-1/2 left-0 -z-10 -translate-y-1/2 opacity-80"
+                aria-hidden
+              >
+                <RadarGraphic />
+              </div>
+
+              <h1 className="relative text-4xl font-black leading-none tracking-tight text-mansure-light sm:text-5xl lg:text-6xl">
+                KOSMOS
+              </h1>
+            </div>
+
+            <p className="mt-3 text-sm font-bold uppercase tracking-[0.22em] text-mansure-blue sm:text-base">
+              Controle de Produção
+            </p>
+
+            <p className="mt-8 text-lg font-semibold leading-snug text-mansure-light sm:text-xl">
+              Inteligência operacional com clareza.
+            </p>
+
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-mansure-gray-medium sm:text-base">
+              Mapeamento de peças, registro de produção e rastreabilidade em um
+              só lugar.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Login — tom ~12% mais claro que o painel esquerdo */}
+      <section className="flex flex-1 items-center justify-center bg-[#121820] px-6 py-14 sm:px-8 lg:min-h-screen lg:justify-start lg:pl-14 lg:pr-10 xl:pl-20 xl:pr-12">
+        <div className="w-full max-w-[360px] text-left">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-mansure-light">Entrar</h2>
+            <p className="mt-2 text-sm text-mansure-gray-medium">
+              Acesse o painel operacional da Kosmos Controle de Produção.
             </p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-semibold text-white">
-                Email
+              <Label
+                htmlFor="email"
+                className="text-[11px] font-semibold uppercase tracking-[0.18em] text-mansure-gray-medium"
+              >
+                E-mail
               </Label>
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 placeholder="seu@email.com"
-                className="h-11 rounded-lg border-white/20 bg-white/10 text-white placeholder:text-gray-400 focus:border-mansure-blue focus:bg-white/15"
+                className="h-12 rounded-lg border-white/10 bg-[#141b26] text-left text-mansure-light placeholder:text-mansure-gray-medium focus-visible:border-mansure-blue focus-visible:ring-mansure-blue/20"
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-xs text-red-400">{errors.email.message}</p>
+                <p className="text-xs font-medium text-red-400">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label
                 htmlFor="password"
-                className="text-sm font-semibold text-white"
+                className="text-[11px] font-semibold uppercase tracking-[0.18em] text-mansure-gray-medium"
               >
                 Senha
               </Label>
@@ -120,15 +182,18 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   placeholder="••••••••"
-                  className="h-11 rounded-lg border-white/20 bg-white/10 pr-10 text-white placeholder:text-gray-400 focus:border-mansure-blue focus:bg-white/15"
+                  className="h-12 rounded-lg border-white/10 bg-[#141b26] pr-12 text-left text-mansure-light placeholder:text-mansure-gray-medium focus-visible:border-mansure-blue focus-visible:ring-mansure-blue/20"
                   {...register("password")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 transition hover:text-white"
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-mansure-gray-medium transition hover:text-mansure-light"
+                  aria-label={
+                    showPassword ? "Ocultar senha" : "Mostrar senha"
+                  }
                 >
                   {showPassword ? (
                     <EyeOff className="size-5" strokeWidth={2} />
@@ -138,7 +203,7 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-red-400">
+                <p className="text-xs font-medium text-red-400">
                   {errors.password.message}
                 </p>
               )}
@@ -147,20 +212,25 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-mansure-blue font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:bg-mansure-blue/90 active:scale-[0.98]"
+              variant="mansurePrimary"
+              className="group h-12 w-full rounded-lg text-base font-semibold"
             >
-              <LogIn className="size-4" strokeWidth={2} />
-              {isSubmitting ? "Entrando..." : "Entrar"}
+              {isSubmitting ? (
+                "Entrando..."
+              ) : (
+                <>
+                  Entrar
+                  <ArrowRight className="size-5 transition group-hover:translate-x-0.5" />
+                </>
+              )}
             </Button>
           </form>
 
-          <div className="mt-8 border-t border-white/10 pt-6 text-center">
-            <p className="text-xs text-gray-400">
-              Versão 1.0 — Sistema de Controle de Produção
-            </p>
-          </div>
+          <p className="mt-10 text-left text-xs text-mansure-gray-medium">
+            Acesso restrito à equipe interna
+          </p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

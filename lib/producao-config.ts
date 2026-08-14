@@ -12,7 +12,7 @@ export const PRODUCAO_AMBIENTES: {
     key: "vick",
     table: "producao_vick",
     title: "VICK",
-    description: "Controle de fornada",
+    description: "Produção VICK",
   },
   {
     key: "coldbox",

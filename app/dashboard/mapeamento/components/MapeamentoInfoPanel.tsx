@@ -3,9 +3,7 @@
 import { useState } from "react";
 import {
   Camera,
-  CheckCircle2,
   ChevronDown,
-  CircleDashed,
   Info,
   MapPin,
   MousePointerClick,
@@ -53,10 +51,10 @@ export function MapeamentoInfoPanel() {
                 Como funciona
               </h4>
               <p className="mb-4 text-sm text-mansure-gray-dark">
-                Cada código cadastrado vira um registro em{" "}
-                <strong className="text-mansure-black">rascunho</strong>. Você
-                preenche as seções aos poucos — não precisa concluir tudo de uma
-                vez.
+                Registre um código, defina o{" "}
+                <strong className="text-mansure-black">status operacional</strong>{" "}
+                (Disponível ou Em Manutenção) e preencha as 6 seções com fotos
+                e endereço físico — no seu ritmo.
               </p>
 
               <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -68,18 +66,18 @@ export function MapeamentoInfoPanel() {
                   },
                   {
                     step: "2",
-                    title: "Abrir seções",
-                    text: "Use Editar ou dê dois cliques na linha/código para abrir o hub com as 6 seções.",
+                    title: "Definir status",
+                    text: 'Clique no badge "Status Atual" na tabela para escolher Disponível ou Em Manutenção, com observação e anexos.',
                   },
                   {
                     step: "3",
-                    title: "Preencher cada seção",
-                    text: "Em cada seção, adicione fotos (com observação opcional) e o endereço físico onde o item está armazenado.",
+                    title: "Preencher seções",
+                    text: 'Use o botão "Seções" para abrir o hub com as 6 áreas (ferramenta, moldagem, árvore, etc.).',
                   },
                   {
                     step: "4",
-                    title: "Concluir progressivamente",
-                    text: 'O status muda para "completo" automaticamente quando todas as 6 seções forem salvas.',
+                    title: "Exportar PDF",
+                    text: "Gere um PDF completo com specs, timeline, imagens e endereços pelo botão PDF na tabela.",
                   },
                 ].map((item) => (
                   <li
@@ -102,10 +100,10 @@ export function MapeamentoInfoPanel() {
               <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-mansure-blue/20 bg-mansure-blue/5 px-3 py-2 text-xs text-mansure-gray-dark">
                 <MousePointerClick className="size-4 shrink-0 text-mansure-blue" />
                 <span>
-                  <strong className="text-mansure-black">Atalho:</strong> dê{" "}
-                  <strong className="text-mansure-black">dois cliques</strong>{" "}
-                  no código ou em qualquer lugar da linha para abrir o
-                  mapeamento registrado.
+                  <strong className="text-mansure-black">Status:</strong> clique
+                  no badge verde/amarelo na coluna{" "}
+                  <strong className="text-mansure-black">Status Atual</strong>{" "}
+                  para alterar entre Disponível e Em Manutenção.
                 </span>
               </div>
             </div>
@@ -157,33 +155,6 @@ export function MapeamentoInfoPanel() {
                     </div>
                   );
                 })}
-              </div>
-            </div>
-
-            <div className="grid gap-3 border-t border-mansure-gray-light pt-4 sm:grid-cols-2">
-              <div className="flex gap-3 rounded-xl border border-amber-200/80 bg-amber-50 p-4">
-                <CircleDashed className="mt-0.5 size-5 shrink-0 text-amber-700" />
-                <div>
-                  <p className="text-sm font-semibold text-amber-900">
-                    Rascunho
-                  </p>
-                  <p className="mt-1 text-xs leading-relaxed text-amber-900/80">
-                    Registro criado, mas ainda faltam seções. Continue editando
-                    quando quiser — nada é perdido ao fechar.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3 rounded-xl border border-green-200/80 bg-green-50 p-4">
-                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-green-700" />
-                <div>
-                  <p className="text-sm font-semibold text-green-900">
-                    Completo
-                  </p>
-                  <p className="mt-1 text-xs leading-relaxed text-green-900/80">
-                    As 6 seções foram salvas com imagens/endereço. Você ainda
-                    pode reabrir e atualizar qualquer seção.
-                  </p>
-                </div>
               </div>
             </div>
           </div>

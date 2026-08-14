@@ -2,7 +2,7 @@
 
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation";
-import { ProducaoAmbienteHistory } from "@/components/ProducaoAmbienteHistory";
+import { RegistroProducaoWorkspace } from "@/app/dashboard/producao/components/RegistroProducaoWorkspace";
 import { isValidProducaoAmbiente } from "@/lib/producao-config";
 
 export default function ProducaoAmbientePage() {
@@ -13,5 +13,5 @@ export default function ProducaoAmbientePage() {
     notFound();
   }
 
-  return <ProducaoAmbienteHistory ambiente={ambiente} />;
+  return <RegistroProducaoWorkspace ambiente={ambiente} />;
 }

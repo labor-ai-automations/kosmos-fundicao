@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Edit2, Plus, Trash2 } from "lucide-react";
+import { Edit2, FileDown, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,18 +12,65 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PageHeader } from "@/components/PageHeader";
 import { formatSecoesPreenchidas } from "@/lib/mapeamento-config";
+import {
+  STATUS_OPERACIONAL_LABELS,
+  type MapeamentoStatusOperacional,
+} from "@/lib/mapeamento-status";
 import type { MapeamentoRegistro } from "@/lib/types";
 import { RegistroMapeamentoModal } from "./components/RegistroMapeamentoModal";
 import { MapeamentoHubModal } from "./components/MapeamentoHubModal";
 import { MapeamentoInfoPanel } from "./components/MapeamentoInfoPanel";
+import { MapeamentoPDFPreviewModal } from "./components/MapeamentoPDFPreviewModal";
+import { MapeamentoStatusModal } from "./components/MapeamentoStatusModal";
+
+function StatusOperacionalBadge({
+  status,
+  onClick,
+}: {
+  status: MapeamentoStatusOperacional | null;
+  onClick?: (event: React.MouseEvent) => void;
+}) {
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onClick?.(event);
+  };
+
+  if (!status) {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        className="rounded px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200"
+      >
+        Aguardando definição
+      </button>
+    );
+  }
+
+  const isDisponivel = status === "disponivel";
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={`rounded px-3 py-1 text-xs font-semibold ${
+        isDisponivel
+          ? "bg-green-100 text-green-800 hover:bg-green-200"
+          : "bg-amber-100 text-amber-900 hover:bg-amber-200"
+      }`}
+    >
+      {STATUS_OPERACIONAL_LABELS[status]}
+    </button>
+  );
+}
 
 export default function MapeamentoPage() {
   const [registros, setRegistros] = useState<MapeamentoRegistro[]>([]);
   const [openRegistroModal, setOpenRegistroModal] = useState(false);
   const [openHubModal, setOpenHubModal] = useState(false);
+  const [openStatusModal, setOpenStatusModal] = useState(false);
   const [codigoSelecionado, setCodigoSelecionado] = useState("");
+  const [codigoExportar, setCodigoExportar] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const carregarRegistros = useCallback(async () => {
@@ -47,7 +94,15 @@ export default function MapeamentoPage() {
     carregarRegistros();
   }, [carregarRegistros]);
 
-  const handleAbrirRegistro = (codigo: string) => {
+  const handleAbrirStatus = (codigo: string) => {
+    setOpenHubModal(false);
+    setCodigoSelecionado(codigo);
+    setOpenStatusModal(true);
+  };
+
+  const handleAbrirHub = (codigo: string, event?: React.MouseEvent) => {
+    event?.stopPropagation();
+    setOpenStatusModal(false);
     setCodigoSelecionado(codigo);
     setOpenHubModal(true);
   };
@@ -75,17 +130,18 @@ export default function MapeamentoPage() {
     }
   };
 
-  const handleRowDoubleClick = (codigo: string) => {
-    handleAbrirRegistro(codigo);
+  const handleAbrirExportPdf = (codigo: string, event?: React.MouseEvent) => {
+    event?.stopPropagation();
+    setCodigoExportar(codigo);
   };
+
+  const registroSelecionado = registros.find(
+    (r) => r.codigo === codigoSelecionado
+  );
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <PageHeader
-          title="Mapeamento de Peças"
-          description="Registre códigos e preencha as seções progressivamente."
-        />
+      <div className="mb-6 flex flex-wrap items-center justify-end gap-4">
         <Button
           type="button"
           onClick={() => setOpenRegistroModal(true)}
@@ -99,6 +155,21 @@ export default function MapeamentoPage() {
 
       <MapeamentoInfoPanel />
 
+      <div className="mb-4 flex items-start gap-3 rounded-xl border border-mansure-border bg-mansure-light px-5 py-4 text-sm text-mansure-gray-dark shadow-sm">
+        <span className="text-lg leading-none" aria-hidden>
+          💡
+        </span>
+        <p className="text-mansure-black">
+          <strong className="font-bold text-mansure-black">Dica:</strong>{" "}
+          clique em uma linha da tabela para abrir o mapeamento completo
+          (seções, status e histórico). Clique apenas no badge{" "}
+          <strong className="font-semibold text-mansure-blue">
+            Status Atual
+          </strong>{" "}
+          para alterar o status diretamente.
+        </p>
+      </div>
+
       {loading ? (
         <div className="py-12 text-center text-mansure-light/80">
           Carregando...
@@ -109,7 +180,7 @@ export default function MapeamentoPage() {
             <TableHeader>
               <TableRow className="kosmos-table-header border-0 hover:bg-mansure-blue">
                 <TableHead className="kosmos-table-head">Código</TableHead>
-                <TableHead className="kosmos-table-head">Status</TableHead>
+                <TableHead className="kosmos-table-head">Status Atual</TableHead>
                 <TableHead className="kosmos-table-head">
                   Seções preenchidas
                 </TableHead>
@@ -124,30 +195,19 @@ export default function MapeamentoPage() {
                 <TableRow
                   key={registro.id}
                   className="kosmos-table-row cursor-pointer border-mansure-gray-light hover:bg-mansure-hover/80"
-                  onDoubleClick={() => handleRowDoubleClick(registro.codigo)}
-                  title="Dois cliques para abrir o mapeamento"
+                  onClick={() => handleAbrirHub(registro.codigo)}
                 >
-                  <TableCell
-                    className="kosmos-table-cell font-semibold text-mansure-black"
-                    onDoubleClick={(e) => {
-                      e.stopPropagation();
-                      handleRowDoubleClick(registro.codigo);
-                    }}
-                  >
-                    <span className="underline-offset-2 hover:underline">
-                      {registro.codigo}
-                    </span>
+                  <TableCell className="kosmos-table-cell font-semibold text-mansure-black">
+                    {registro.codigo}
                   </TableCell>
-                  <TableCell className="kosmos-table-cell text-mansure-gray-dark">
-                    <span
-                      className={`rounded px-3 py-1 text-xs font-semibold ${
-                        registro.status === "rascunho"
-                          ? "bg-amber-100 text-amber-900"
-                          : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {registro.status.toUpperCase()}
-                    </span>
+                  <TableCell
+                    className="kosmos-table-cell"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <StatusOperacionalBadge
+                      status={registro.status_atual}
+                      onClick={() => handleAbrirStatus(registro.codigo)}
+                    />
                   </TableCell>
                   <TableCell className="kosmos-table-cell text-mansure-gray-dark">
                     {formatSecoesPreenchidas(registro.secoes_preenchidas)}
@@ -157,27 +217,36 @@ export default function MapeamentoPage() {
                   </TableCell>
                   <TableCell
                     className="kosmos-table-cell text-right"
-                    onDoubleClick={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <Button
                       type="button"
                       size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAbrirRegistro(registro.codigo);
-                      }}
+                      onClick={(e) => handleAbrirHub(registro.codigo, e)}
                       variant="mansurePrimary"
                       className="gap-1"
+                      title="Editar seções (imagens)"
                     >
                       <Edit2 className="size-3" />
-                      Editar
+                      Seções
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="mansureOutline"
+                      onClick={(e) => handleAbrirExportPdf(registro.codigo, e)}
+                      className="ml-1 gap-1 text-mansure-gray-dark"
+                      title="Exportar PDF"
+                    >
+                      <FileDown className="size-3" />
+                      PDF
                     </Button>
                     <Button
                       type="button"
                       size="sm"
                       variant="mansureOutline"
                       onClick={(e) => handleDeletarRegistro(registro.codigo, e)}
-                      className="ml-2 gap-1 text-mansure-gray-dark"
+                      className="ml-1 gap-1 text-mansure-gray-dark"
                     >
                       <Trash2 className="size-3" />
                       Deletar
@@ -191,10 +260,8 @@ export default function MapeamentoPage() {
           {registros.length === 0 && (
             <button
               type="button"
-              onDoubleClick={() => setOpenRegistroModal(true)}
               onClick={() => setOpenRegistroModal(true)}
               className="w-full py-12 text-center text-mansure-gray-dark transition hover:bg-mansure-hover/50"
-              title="Clique ou dê dois cliques para registrar o primeiro item"
             >
               <p className="font-medium text-mansure-black">
                 Nenhum registro encontrado
@@ -210,10 +277,21 @@ export default function MapeamentoPage() {
       <RegistroMapeamentoModal
         isOpen={openRegistroModal}
         onClose={() => setOpenRegistroModal(false)}
-        onRegistered={() => {
+        onRegistered={(codigo) => {
           setOpenRegistroModal(false);
+          setOpenHubModal(false);
           carregarRegistros();
+          setCodigoSelecionado(codigo);
+          setOpenStatusModal(true);
         }}
+      />
+
+      <MapeamentoStatusModal
+        isOpen={openStatusModal}
+        onClose={() => setOpenStatusModal(false)}
+        codigo={codigoSelecionado}
+        statusAtual={registroSelecionado?.status_atual ?? null}
+        onStatusChanged={carregarRegistros}
       />
 
       <MapeamentoHubModal
@@ -221,6 +299,12 @@ export default function MapeamentoPage() {
         onClose={() => setOpenHubModal(false)}
         codigo={codigoSelecionado}
         onAtualizado={carregarRegistros}
+      />
+
+      <MapeamentoPDFPreviewModal
+        isOpen={!!codigoExportar}
+        onClose={() => setCodigoExportar(null)}
+        codigo={codigoExportar ?? ""}
       />
     </div>
   );

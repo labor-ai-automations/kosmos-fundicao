@@ -158,7 +158,7 @@
 
 @layer utilities {
   .kosmos-page-breadcrumb {
-    @apply text-[11px] font-medium uppercase tracking-[0.12em] text-mansure-gray-medium;
+    @apply text-[11px] font-medium uppercase tracking-[0.12em] text-white/60;
   }
   .kosmos-page-title {
     @apply text-2xl font-bold tracking-tight text-mansure-light sm:text-3xl;
@@ -196,23 +196,10 @@
   .kosmos-table-row {
     @apply border-mansure-gray-light hover:bg-mansure-hover/60;
   }
-  .mansure-calendar {
-    @apply rounded-lg border border-mansure-border bg-mansure-light p-0;
-  }
-  .mansure-calendar .rdp-month_caption {
-    @apply rounded-t-lg bg-mansure-black py-2 text-mansure-light;
-  }
-  .mansure-calendar .rdp-caption_label {
-    @apply text-mansure-light;
-  }
-  .mansure-calendar .rdp-day_button {
-    @apply text-mansure-black hover:bg-mansure-hover;
-  }
-  .mansure-calendar .rdp-selected .rdp-day_button {
-    @apply bg-mansure-blue text-mansure-light;
-  }
-  .mansure-calendar .rdp-today .rdp-day_button {
-    @apply border-2 border-mansure-blue bg-transparent font-semibold text-mansure-black;
+  .mansure-calendar.rdp-root {
+    --rdp-accent-color: var(--mansure-blue);
+    --rdp-accent-background-color: color-mix(in srgb, var(--mansure-blue) 14%, white);
+    --rdp-range_middle-color: var(--mansure-gray-dark);
   }
   .mansure-pagination-meta {
     @apply text-sm font-medium text-mansure-gray-dark;

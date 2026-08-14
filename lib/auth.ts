@@ -1,6 +1,31 @@
 import { createClient } from "@/lib/supabase/client";
 import type { AuthUser, Usuario } from "@/lib/types";
 
+export const OPERADOR_COOKIE = "kosmos_operador_nome";
+
+function setOperadorCookie(nome: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${OPERADOR_COOKIE}=${encodeURIComponent(nome)}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+}
+
+function clearOperadorCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${OPERADOR_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
+function readOperadorCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${OPERADOR_COOKIE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}=([^;]*)`)
+  );
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 export async function loginMock(displayEmail: string): Promise<AuthUser> {
   const supabase = createClient();
 
@@ -52,16 +77,24 @@ export async function loginMock(displayEmail: string): Promise<AuthUser> {
     .eq("id", data.user.id)
     .maybeSingle<Usuario>();
 
-  return {
+  const authUser: AuthUser = {
     id: data.user.id,
     email: displayEmail || data.user.email || demoEmail,
     nome: profile?.nome || displayEmail.split("@")[0] || "Operador",
   };
+
+  return persistOperadorFromAuthUser(authUser);
+}
+
+function persistOperadorFromAuthUser(authUser: AuthUser) {
+  setOperadorCookie(authUser.nome);
+  return authUser;
 }
 
 export async function logout(): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.auth.signOut();
+  clearOperadorCookie();
   if (error) {
     throw new Error(error.message);
   }
@@ -85,11 +118,15 @@ export async function getSessionUser(): Promise<AuthUser | null> {
     .eq("id", user.id)
     .maybeSingle<Usuario>();
 
-  return {
+  return persistOperadorFromAuthUser({
     id: user.id,
     email: user.email || "",
-    nome: profile?.nome || user.email?.split("@")[0] || "Operador",
-  };
+    nome:
+      readOperadorCookie() ||
+      profile?.nome ||
+      user.email?.split("@")[0] ||
+      "Operador",
+  });
 }
 
 export function formatDateForDb(date: Date): string {

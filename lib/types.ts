@@ -51,6 +51,10 @@ export interface ProducaoVick {
   id: string;
   data: string;
   codigo: string;
+  codigo_2?: string | null;
+  eh_meia_placa?: boolean;
+  eh_manual?: boolean;
+  tipo_placa?: string | null;
   qtde_caixas: number;
   percas: number;
   setup: boolean;
@@ -60,6 +64,8 @@ export interface ProducaoVick {
   criado_em: string;
   criado_por: string;
   deleted_at: string | null;
+  archived_at?: string | null;
+  archived_by?: string | null;
 }
 
 export interface ProducaoColdbox {
@@ -78,6 +84,8 @@ export interface ProducaoColdbox {
   criado_em: string;
   criado_por: string;
   deleted_at: string | null;
+  archived_at?: string | null;
+  archived_by?: string | null;
 }
 
 export interface ProducaoMacharia {
@@ -98,6 +106,8 @@ export interface ProducaoMacharia {
   criado_em: string;
   criado_por: string;
   deleted_at: string | null;
+  archived_at?: string | null;
+  archived_by?: string | null;
 }
 
 export interface Refugo {
@@ -145,6 +155,21 @@ export interface AuthUser {
 
 export interface RecordsFilter {
   data?: string;
+  dataFrom?: string;
+  dataTo?: string;
+  search?: string;
+  pesoMin?: number;
+  pesoMax?: number;
+  caixasMin?: number;
+  caixasMax?: number;
+  setup?: boolean;
+  ehMeiaPlaca?: boolean;
+  ehManual?: boolean;
+  pedidoEstoque?: string[];
+  sortBy?: string;
+  sortDirection?: "asc" | "desc";
+  /** Quando true, retorna apenas registros arquivados (somente tabelas arquiváveis) */
+  archivedOnly?: boolean;
 }
 
 export interface PaginatedResult<T> {
@@ -175,7 +200,10 @@ export interface MapeamentoPeca {
 export interface MapeamentoRegistro {
   id: string;
   codigo: string;
+  /** Progresso das 6 seções: rascunho | completo */
   status: "rascunho" | "completo";
+  status_atual: import("./mapeamento-status").MapeamentoStatusOperacional | null;
+  status_definido_em: string | null;
   secoes_preenchidas: import("./mapeamento-config").SecoesPreenchidas;
   criado_em: string;
   criado_por: string | null;
@@ -183,6 +211,13 @@ export interface MapeamentoRegistro {
   atualizado_por: string | null;
   deleted_at: string | null;
 }
+
+export type {
+  MapeamentoAnexo,
+  MapeamentoStatusOperacional,
+  MapeamentoTimelineItem,
+  MapeamentoVickConfig,
+} from "./mapeamento-status";
 
 export type {
   MapeamentoFoto,

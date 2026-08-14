@@ -71,66 +71,67 @@ export function Sidebar() {
     <aside
       className={cn(
         "fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-mansure-gray-light/10 bg-mansure-black transition-all duration-300 md:flex",
-        collapsed ? "w-16" : "w-64"
+        collapsed ? "w-[4.5rem]" : "w-72"
       )}
     >
       <div
         className={cn(
           "flex items-center border-b border-mansure-gray-light/10",
-          collapsed ? "justify-center px-2 py-4" : "justify-between px-4 py-5"
+          collapsed ? "justify-center px-2 py-5" : "justify-between px-5 py-6"
         )}
       >
         <Link
           href="/dashboard"
-          className={cn("block min-w-0", collapsed && "text-center")}
+          className={cn("group block min-w-0", collapsed && "text-center")}
         >
           {collapsed ? (
-            <span className="text-lg font-black text-mansure-blue">K</span>
+            <span className="text-2xl font-black text-mansure-blue">K</span>
           ) : (
-            <>
-              <span className="text-xl font-black tracking-tight text-mansure-light">
+            <div className="space-y-1">
+              <span className="block text-3xl font-black leading-none tracking-tight text-mansure-light">
                 KOSMOS
               </span>
-              <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.22em] text-mansure-blue">
-                Fundição
+              <span className="block text-sm font-semibold uppercase tracking-[0.28em] text-mansure-blue">
+                Controle de Produção
               </span>
-            </>
+              <span className="mt-2 block h-0.5 w-10 rounded-full bg-gradient-to-r from-mansure-blue to-mansure-blue/20 transition-all group-hover:w-14" />
+            </div>
           )}
         </Link>
         {!collapsed && (
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             onClick={toggle}
             className="shrink-0 text-mansure-gray-medium hover:bg-mansure-gray-dark/30 hover:text-mansure-light"
             title="Recolher menu"
           >
-            <ChevronLeft className="size-4" />
+            <ChevronLeft className="size-5" />
           </Button>
         )}
       </div>
 
       {collapsed && (
-        <div className="flex justify-center border-b border-mansure-gray-light/10 py-2">
+        <div className="flex justify-center border-b border-mansure-gray-light/10 py-3">
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             onClick={toggle}
             className="text-mansure-gray-medium hover:bg-mansure-gray-dark/30 hover:text-mansure-light"
             title="Expandir menu"
           >
-            <ChevronRight className="size-4" />
+            <ChevronRight className="size-5" />
           </Button>
         </div>
       )}
 
       {!collapsed && (
-        <p className="px-4 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-mansure-gray-medium">
+        <p className="px-5 pt-5 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-mansure-gray-medium">
           Navegação principal
         </p>
       )}
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-1 py-2">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-2">
         {navItems.map(({ label, href, icon: Icon, exact }) => {
           const active = exact
             ? pathname === href
@@ -142,37 +143,37 @@ export function Sidebar() {
               href={href}
               title={collapsed ? label : undefined}
               className={cn(
-                "mx-1 flex items-center rounded-lg py-2.5 text-xs font-medium transition-all duration-200",
-                collapsed ? "justify-center px-2" : "gap-2.5 px-3",
+                "flex items-center rounded-xl text-sm font-semibold transition-all duration-200",
+                collapsed ? "justify-center px-2 py-3" : "gap-3 px-4 py-3.5",
                 active
-                  ? "border-l-4 border-mansure-blue bg-mansure-blue/20 text-mansure-light"
-                  : "border-l-4 border-transparent text-mansure-gray-medium hover:bg-mansure-gray-dark/30 hover:text-mansure-light"
+                  ? "bg-mansure-blue/20 text-mansure-light shadow-[inset_3px_0_0_0] shadow-mansure-blue"
+                  : "text-mansure-gray-medium hover:bg-mansure-gray-dark/40 hover:text-mansure-light"
               )}
             >
-              <Icon className="size-[18px] shrink-0" strokeWidth={2} />
-              {!collapsed && <span className="truncate">{label}</span>}
+              <Icon className="size-5 shrink-0" strokeWidth={2} />
+              {!collapsed && <span className="truncate leading-snug">{label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-mansure-gray-light/10 p-3">
+      <div className="border-t border-mansure-gray-light/10 p-4">
         {user && (
           <div
             className={cn(
-              "mb-3 flex items-center gap-2.5",
+              "mb-4 flex items-center gap-3",
               collapsed && "justify-center"
             )}
           >
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-mansure-blue text-xs font-bold text-mansure-light">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-mansure-blue text-sm font-bold text-mansure-light ring-2 ring-mansure-blue/30">
               {getInitials(user.nome)}
             </div>
             {!collapsed && (
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-mansure-light">
+                <p className="truncate text-base font-semibold text-mansure-light">
                   {user.nome}
                 </p>
-                <p className="truncate text-xs text-mansure-gray-medium">
+                <p className="truncate text-sm text-mansure-gray-medium">
                   {user.email || "Usuário"}
                 </p>
               </div>
@@ -181,15 +182,15 @@ export function Sidebar() {
         )}
         <Button
           variant="outline"
-          size={collapsed ? "icon-sm" : "sm"}
+          size={collapsed ? "icon" : "default"}
           onClick={handleLogout}
           title={collapsed ? "Sair" : undefined}
           className={cn(
-            "border-mansure-gray-light/20 bg-mansure-gray-dark/20 text-mansure-light hover:border-mansure-error/50 hover:bg-mansure-error/10 hover:text-mansure-error",
-            collapsed ? "mx-auto flex" : "w-full"
+            "border-mansure-gray-light/20 bg-mansure-gray-dark/20 text-sm font-medium text-mansure-light hover:border-mansure-error/50 hover:bg-mansure-error/10 hover:text-mansure-error",
+            collapsed ? "mx-auto flex size-10" : "h-11 w-full"
           )}
         >
-          <LogOut className="size-4" strokeWidth={2} />
+          <LogOut className="size-[18px]" strokeWidth={2} />
           {!collapsed && "Sair"}
         </Button>
       </div>

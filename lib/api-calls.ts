@@ -22,6 +22,7 @@ import type {
   UpdateItemMacharia,
   UpdateItemVick,
 } from "@/lib/types";
+import { isArchivableProductionTable } from "@/lib/archive-config";
 import type { RefugoSelectorItem } from "@/lib/refugo-selector-config";
 
 const PAGE_SIZE = 20;
@@ -657,24 +658,145 @@ async function attachUserNames<T extends { criado_por: string }>(
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyRecordsFilters(query: any, table: ProductionTable, filters: RecordsFilter) {
+  let next = query.is("deleted_at", null);
+
+  if (isArchivableProductionTable(table)) {
+    if (filters.archivedOnly) {
+      next = next.not("archived_at", "is", null);
+    } else {
+      next = next.is("archived_at", null);
+    }
+  }
+
+  if (filters.data) {
+    next = next.eq("data", filters.data);
+  }
+  if (filters.dataFrom) {
+    next = next.gte("data", filters.dataFrom);
+  }
+  if (filters.dataTo) {
+    next = next.lte("data", filters.dataTo);
+  }
+  if (filters.search?.trim()) {
+    const term = filters.search.trim().replace(/[%_]/g, "");
+    next = next.or(`codigo.ilike.%${term}%,observacao.ilike.%${term}%`);
+  }
+  if (filters.pesoMin != null) {
+    next = next.gte("peso_registro", filters.pesoMin);
+  }
+  if (filters.pesoMax != null) {
+    next = next.lte("peso_registro", filters.pesoMax);
+  }
+  if (
+    filters.caixasMin != null &&
+    (table === "producao_vick" || table === "producao_coldbox")
+  ) {
+    next = next.gte("qtde_caixas", filters.caixasMin);
+  }
+  if (
+    filters.caixasMax != null &&
+    (table === "producao_vick" || table === "producao_coldbox")
+  ) {
+    next = next.lte("qtde_caixas", filters.caixasMax);
+  }
+  if (filters.setup != null && table === "producao_vick") {
+    next = next.eq("setup", filters.setup);
+  }
+  if (filters.ehMeiaPlaca != null && table === "producao_vick") {
+    next = next.eq("eh_meia_placa", filters.ehMeiaPlaca);
+  }
+  if (filters.ehManual != null && table === "producao_vick") {
+    next = next.eq("eh_manual", filters.ehManual);
+  }
+  if (
+    filters.pedidoEstoque &&
+    filters.pedidoEstoque.length > 0 &&
+    (table === "producao_vick" || table === "producao_coldbox")
+  ) {
+    next = next.in("pedido_estoque", filters.pedidoEstoque);
+  }
+
+  return next;
+}
+
+const SORTABLE_COLUMNS: Partial<Record<ProductionTable, Record<string, string>>> = {
+  producao_vick: {
+    data: "data",
+    codigo: "codigo",
+    peso: "peso_registro",
+    caixas: "qtde_caixas",
+    percas: "percas",
+    setup: "setup",
+    meia_placa: "eh_meia_placa",
+    manual: "eh_manual",
+    pedido_estoque: "pedido_estoque",
+    criado_em: "criado_em",
+    archived_at: "archived_at",
+  },
+  producao_coldbox: {
+    data: "data",
+    codigo: "codigo",
+    peso: "peso_registro",
+    caixas: "qtde_caixas",
+    percas: "percas",
+    ciclo: "ciclo",
+    operador: "operador",
+    local: "local",
+    pedido_estoque: "pedido_estoque",
+    criado_em: "criado_em",
+    archived_at: "archived_at",
+  },
+  producao_macharia: {
+    data: "data",
+    codigo: "codigo",
+    peso: "peso_registro",
+    qtde_feita: "qtde_feita",
+    colaborador: "colaborador",
+    maquina: "maquina",
+    criado_em: "criado_em",
+    archived_at: "archived_at",
+  },
+  refugo: {
+    data: "data",
+    codigo: "codigo",
+    peso: "peso_registro",
+    fundicao: "fundicao",
+    qtde_perdida: "qtde_perdida",
+    motivo: "motivo",
+    criado_em: "criado_em",
+  },
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyRecordsSorting(query: any, table: ProductionTable, filters: RecordsFilter) {
+  const sortColumn =
+    filters.sortBy && SORTABLE_COLUMNS[table]?.[filters.sortBy]
+      ? SORTABLE_COLUMNS[table]![filters.sortBy]
+      : null;
+
+  if (sortColumn) {
+    return query
+      .order(sortColumn, { ascending: filters.sortDirection === "asc" })
+      .order("criado_em", { ascending: false });
+  }
+
+  return query.order("data", { ascending: false }).order("criado_em", { ascending: false });
+}
+
 export async function getAllRecords(
   table: ProductionTable,
   page = 1,
-  filters: RecordsFilter = {}
+  filters: RecordsFilter = {},
+  pageSize = PAGE_SIZE
 ): Promise<PaginatedResult<RecordRow>> {
-  const from = (page - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
-  let query = getClient()
-    .from(table)
-    .select("*", { count: "exact" })
-    .is("deleted_at", null)
-    .order("data", { ascending: false })
-    .order("criado_em", { ascending: false });
-
-  if (filters.data) {
-    query = query.eq("data", filters.data);
-  }
+  let query = getClient().from(table).select("*", { count: "exact" });
+  query = applyRecordsFilters(query, table, filters);
+  query = applyRecordsSorting(query, table, filters);
 
   const { data, error, count } = await query.range(from, to);
 
@@ -686,8 +808,25 @@ export async function getAllRecords(
     data: withUsers as RecordRow[],
     total: count ?? 0,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
   };
+}
+
+export async function getRecordsForExport(
+  table: ProductionTable,
+  filters: RecordsFilter = {},
+  limit = 5000
+): Promise<RecordRow[]> {
+  let query = getClient().from(table).select("*");
+  query = applyRecordsFilters(query, table, filters);
+  query = applyRecordsSorting(query, table, filters);
+
+  const { data, error } = await query.limit(limit);
+
+  if (error) throw new Error(error.message);
+
+  const withUsers = await attachUserNames(data ?? []);
+  return withUsers as RecordRow[];
 }
 
 export async function softDeleteRecord(

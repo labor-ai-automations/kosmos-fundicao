@@ -21,6 +21,7 @@ import type {
   Refugo,
   RecordWithUser,
 } from "@/lib/types";
+import { formatProducaoFieldLabel } from "@/lib/registro-producao-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -394,7 +395,7 @@ export function RecordsPage() {
 
     return fields.map(([key, value]) => (
       <div key={key} className="space-y-1">
-        <Label className="kosmos-label capitalize">{key.replace(/_/g, " ")}</Label>
+        <Label className="kosmos-label">{formatProducaoFieldLabel(key)}</Label>
         {typeof value === "boolean" ? (
           <select
             className="kosmos-input px-2 py-1.5 text-sm"
@@ -450,7 +451,7 @@ export function RecordsPage() {
       .map(([key, value]) => (
         <DetailField
           key={key}
-          label={key.replace(/_/g, " ")}
+          label={formatProducaoFieldLabel(key)}
           value={
             typeof value === "boolean"
               ? value

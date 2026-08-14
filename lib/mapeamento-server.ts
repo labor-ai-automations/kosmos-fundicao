@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import {
@@ -10,6 +11,76 @@ import {
   type SecoesPreenchidas,
 } from "@/lib/mapeamento-config";
 import type { MapeamentoItemSpecs } from "@/lib/types";
+import {
+  parseAnexos,
+  type MapeamentoAnexo,
+  type MapeamentoStatusOperacional,
+} from "@/lib/mapeamento-status";
+
+const OPERADOR_COOKIE = "kosmos_operador_nome";
+
+export async function getUsuarioNome(
+  supabase: SupabaseClient,
+  userId: string | null,
+  sessionUser?: User | null
+): Promise<string> {
+  if (!userId) return "Desconhecido";
+
+  const { data } = await supabase
+    .from("usuarios")
+    .select("nome, email")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (data?.nome) return data.nome;
+  if (data?.email) return data.email.split("@")[0];
+
+  if (sessionUser?.id === userId) {
+    const meta =
+      sessionUser.user_metadata?.nome ??
+      sessionUser.user_metadata?.full_name ??
+      sessionUser.user_metadata?.name;
+    if (typeof meta === "string" && meta.trim()) return meta.trim();
+    if (sessionUser.email) return sessionUser.email.split("@")[0];
+  }
+
+  return "Desconhecido";
+}
+
+export async function getOperadorNome(
+  supabase: SupabaseClient,
+  user: User | null
+): Promise<string> {
+  const cookieStore = await cookies();
+  const fromCookie = cookieStore.get(OPERADOR_COOKIE)?.value;
+  if (fromCookie) {
+    try {
+      return decodeURIComponent(fromCookie);
+    } catch {
+      return fromCookie;
+    }
+  }
+
+  return getUsuarioNome(supabase, user?.id ?? null, user);
+}
+
+export async function getRegistroByCodigo(
+  supabase: SupabaseClient,
+  codigo: string
+) {
+  const { data, error } = await supabase
+    .from("mapeamento_pecas_registros")
+    .select("*")
+    .eq("codigo", codigo)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export { parseAnexos };
+export type { MapeamentoAnexo, MapeamentoStatusOperacional };
 
 export async function getMapeamentoAuthContext(): Promise<{
   supabase: SupabaseClient;

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { MapeamentoImageZoomModal } from "./MapeamentoImageZoomModal";
 import {
   fileToBase64Compressed,
   getMapeamentoSecaoConfig,
@@ -40,6 +41,11 @@ export function SecaoMapeamentoModal({
   const [endereco, setEndereco] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [imagemZoom, setImagemZoom] = useState<{
+    base64: string;
+    nome: string;
+    observacao?: string;
+  } | null>(null);
 
   const secaoConfig = getMapeamentoSecaoConfig(secao);
 
@@ -173,12 +179,25 @@ export function SecaoMapeamentoModal({
                           </Button>
                         </div>
 
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={img.base64}
-                          alt={`Foto ${idx + 1}`}
-                          className="max-h-40 rounded-md border border-mansure-gray-light object-contain"
-                        />
+                        {img.base64?.trim() ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={img.base64}
+                            alt={`Foto ${idx + 1}`}
+                            className="max-h-40 cursor-pointer rounded-md border border-mansure-gray-light object-contain transition hover:opacity-80"
+                            onClick={() =>
+                              setImagemZoom({
+                                base64: img.base64,
+                                nome: `Foto ${idx + 1}`,
+                                observacao: img.observacao,
+                              })
+                            }
+                          />
+                        ) : (
+                          <p className="text-sm text-mansure-gray-medium">
+                            Imagem indisponível
+                          </p>
+                        )}
 
                         <textarea
                           placeholder="Adicione uma observação (opcional)"
@@ -239,6 +258,16 @@ export function SecaoMapeamentoModal({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {imagemZoom?.base64?.trim() && (
+        <MapeamentoImageZoomModal
+          isOpen
+          onClose={() => setImagemZoom(null)}
+          imageBase64={imagemZoom.base64}
+          imageName={imagemZoom.nome}
+          observacao={imagemZoom.observacao}
+        />
+      )}
     </Dialog>
   );
 }
