@@ -34,14 +34,18 @@ export function RegistroProducaoArchiveDialog({
   const { archiveMutation } = useArchiveRecord();
 
   const handleArchive = async () => {
-    await archiveMutation.mutateAsync({
-      id: recordId,
-      tabela,
-      motivo: motivo.trim() || undefined,
-    });
-    setMotivo("");
-    onOpenChange(false);
-    onSuccess?.();
+    try {
+      await archiveMutation.mutateAsync({
+        id: recordId,
+        tabela,
+        motivo: motivo.trim() || undefined,
+      });
+      setMotivo("");
+      onOpenChange(false);
+      onSuccess?.();
+    } catch {
+      // Erro exibido via toast em useArchiveRecord.onError
+    }
   };
 
   return (

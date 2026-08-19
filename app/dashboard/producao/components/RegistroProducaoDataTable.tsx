@@ -93,11 +93,15 @@ function RestoreRowButton({
       disabled={restoreMutation.isPending}
       onClick={async (e) => {
         e.stopPropagation();
-        await restoreMutation.mutateAsync({
-          id: recordId,
-          tabela,
-          motivo: "Desarquivado pelo usuário",
-        });
+        try {
+          await restoreMutation.mutateAsync({
+            id: recordId,
+            tabela,
+            motivo: "Desarquivado pelo usuário",
+          });
+        } catch {
+          // toast via onError
+        }
       }}
     >
       <RotateCcw className="size-3.5" />
@@ -241,7 +245,7 @@ export function RegistroProducaoDataTable({
     viewMode,
   } = useRegistroProducaoStore();
 
-  const { records, totalCount, totalPages, isLoading, isRefetching } =
+  const { records, totalCount, totalPages, isLoading, isRefetching, error } =
     useRegistroProducao(ambiente);
 
   const displayColumns = getEffectiveVisibleColumns(visibleColumns, viewMode);
@@ -363,6 +367,16 @@ export function RegistroProducaoDataTable({
                     className="py-16 text-center text-mansure-gray-medium"
                   >
                     Carregando registros...
+                  </TableCell>
+                </TableRow>
+              ) : error ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={displayColumns.length + 1}
+                    className="py-16 text-center text-red-600"
+                  >
+                    Erro ao carregar registros:{" "}
+                    {error instanceof Error ? error.message : "Falha desconhecida"}
                   </TableCell>
                 </TableRow>
               ) : records.length === 0 ? (
@@ -519,14 +533,6 @@ export function RegistroProducaoDataTable({
             onEdit(detailRecord);
             setDetailRecord(null);
           }}
-          {...(ambiente === "refugo"
-            ? {
-                onDelete: () => {
-                  onDelete(detailRecord.id);
-                  setDetailRecord(null);
-                },
-              }
-            : {})}
         />
       )}
     </>

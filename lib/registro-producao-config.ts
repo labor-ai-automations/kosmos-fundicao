@@ -68,6 +68,7 @@ export const REGISTRO_COLUMNS: Record<ProducaoAmbiente, RegistroColumnDef[]> = {
     { id: "observacao", label: "Observação", defaultVisible: true },
     { id: "criado_por", label: "Criado Por", defaultVisible: false },
     { id: "criado_em", label: "Criado Em", defaultVisible: false, sortable: true },
+    { id: "archived_at", label: "Arquivado em", defaultVisible: false, sortable: true },
   ],
 };
 

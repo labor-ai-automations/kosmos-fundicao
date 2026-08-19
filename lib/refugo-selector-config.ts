@@ -71,5 +71,12 @@ export function refugoItemMatchesSearch(
 }
 
 export function getRefugoPesoPrincipal(item: RefugoSelectorItem): number | null {
-  return item.peso_peca ?? item.peso ?? item.peso_1 ?? null;
+  return (
+    item.peso_peca ??
+    item.peso ??
+    item.peso_1 ??
+    item.peso_macho ??
+    item.peso_2 ??
+    null
+  );
 }

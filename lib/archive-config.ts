@@ -4,6 +4,7 @@ export const ARCHIVABLE_PRODUCTION_TABLES = [
   "producao_vick",
   "producao_coldbox",
   "producao_macharia",
+  "refugo",
 ] as const;
 
 export type ArchivableProductionTable =

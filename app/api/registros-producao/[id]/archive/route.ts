@@ -9,11 +9,28 @@ type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
+function formatArchiveDbError(err: unknown, tabela: string, action: "arquivar" | "restaurar") {
+  const message =
+    err instanceof Error
+      ? err.message
+      : typeof err === "object" && err && "message" in err
+        ? String((err as { message: unknown }).message)
+        : `Erro ao ${action}`;
+
+  if (message.toLowerCase().includes("archived_at")) {
+    return `Arquivamento indisponível na tabela "${tabela}". Execute no Supabase: ALTER TABLE ${tabela} ADD COLUMN IF NOT EXISTS archived_at timestamptz, ADD COLUMN IF NOT EXISTS archived_by uuid;`;
+  }
+
+  return message || `Erro ao ${action}`;
+}
+
 export async function POST(req: NextRequest, context: RouteContext) {
+  let tabela = "producao_vick";
+
   try {
     const { id } = await context.params;
     const body = await req.json();
-    const tabela = body.tabela ?? "producao_vick";
+    tabela = body.tabela ?? tabela;
     const motivo = body.motivo as string | undefined;
 
     if (!isArchivableProductionTable(tabela)) {
@@ -71,17 +88,19 @@ export async function POST(req: NextRequest, context: RouteContext) {
   } catch (err) {
     console.error("Erro ao arquivar:", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Erro ao arquivar" },
+      { error: formatArchiveDbError(err, tabela, "arquivar") },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(req: NextRequest, context: RouteContext) {
+  let tabela = "producao_vick";
+
   try {
     const { id } = await context.params;
     const body = await req.json();
-    const tabela = body.tabela ?? "producao_vick";
+    tabela = body.tabela ?? tabela;
     const motivo = body.motivo as string | undefined;
 
     if (!isArchivableProductionTable(tabela)) {
@@ -139,7 +158,7 @@ export async function PUT(req: NextRequest, context: RouteContext) {
   } catch (err) {
     console.error("Erro ao restaurar:", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Erro ao restaurar" },
+      { error: formatArchiveDbError(err, tabela, "restaurar") },
       { status: 500 }
     );
   }

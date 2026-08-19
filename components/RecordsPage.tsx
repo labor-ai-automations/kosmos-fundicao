@@ -21,7 +21,11 @@ import type {
   Refugo,
   RecordWithUser,
 } from "@/lib/types";
-import { formatProducaoFieldLabel } from "@/lib/registro-producao-utils";
+import {
+  formatProducaoFieldLabel,
+  isProducaoNumericField,
+  PRODUCAO_NUMERIC_FIELD_KEYS,
+} from "@/lib/registro-producao-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -138,7 +142,13 @@ export function RecordsPage() {
 
   const openEdit = (row: RecordRow) => {
     setEditRow(row);
-    setEditForm({ ...row });
+    const form: Record<string, string | number | boolean | null> = { ...row };
+    for (const key of PRODUCAO_NUMERIC_FIELD_KEYS) {
+      if (!(key in form)) {
+        form[key] = null;
+      }
+    }
+    setEditForm(form);
   };
 
   const handleSaveEdit = async () => {
@@ -388,7 +398,7 @@ export function RecordsPage() {
   const renderEditFields = () => {
     if (!editRow) return null;
 
-    const fields = Object.entries(editRow).filter(
+    const fields = Object.entries(editForm).filter(
       ([key]) =>
         !["id", "criado_em", "criado_por", "deleted_at", "criado_por_nome", "criado_por_email"].includes(key)
     );
@@ -410,9 +420,13 @@ export function RecordsPage() {
             <option value="true">Sim</option>
             <option value="false">Não</option>
           </select>
-        ) : typeof value === "number" ? (
+        ) : isProducaoNumericField(key, value) ? (
           <DecimalInput
-            value={String(editForm[key] ?? "")}
+            value={
+              editForm[key] === null || editForm[key] === undefined
+                ? ""
+                : String(editForm[key])
+            }
             onChange={(e) =>
               setEditForm((prev) => ({
                 ...prev,

@@ -122,6 +122,8 @@ export interface Refugo {
   criado_em: string;
   criado_por: string;
   deleted_at: string | null;
+  archived_at?: string | null;
+  archived_by?: string | null;
 }
 
 export type ProductionTable =

@@ -9,7 +9,6 @@ import {
   type ProducaoAmbiente,
 } from "@/lib/producao-config";
 import {
-  softDeleteRecord,
   updateProducaoColdbox,
   updateProducaoMacharia,
   updateProducaoVick,
@@ -45,6 +44,8 @@ import { isArchivableProductionTable } from "@/lib/archive-config";
 import { RegistroProducaoDensityToggle } from "./RegistroProducaoDensityToggle";
 import {
   formatProducaoFieldLabel,
+  isProducaoNumericField,
+  PRODUCAO_NUMERIC_FIELD_KEYS,
   type RegistroRecord,
 } from "@/lib/registro-producao-utils";
 import { useRegistroProducao } from "../hooks/useRegistroProducao";
@@ -66,7 +67,6 @@ export function RegistroProducaoWorkspace({
 
   const [openModal, setOpenModal] = useState(false);
   const [editRow, setEditRow] = useState<RegistroRecord | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<
     Record<string, string | number | boolean | null>
   >({});
@@ -82,7 +82,13 @@ export function RegistroProducaoWorkspace({
 
   const openEdit = (row: RegistroRecord) => {
     setEditRow(row);
-    setEditForm({ ...row });
+    const form: Record<string, string | number | boolean | null> = { ...row };
+    for (const key of PRODUCAO_NUMERIC_FIELD_KEYS) {
+      if (!(key in form)) {
+        form[key] = null;
+      }
+    }
+    setEditForm(form);
   };
 
   const handleSaveEdit = async () => {
@@ -134,20 +140,6 @@ export function RegistroProducaoWorkspace({
     }
   };
 
-  const handleConfirmDelete = async () => {
-    if (!deleteId) return;
-    try {
-      await softDeleteRecord(table, deleteId);
-      toast.success("Registro excluído");
-      setDeleteId(null);
-      await reload();
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao excluir registro"
-      );
-    }
-  };
-
   const renderEditFields = () => {
     if (!editRow) return null;
 
@@ -173,7 +165,7 @@ export function RegistroProducaoWorkspace({
       </select>
     );
 
-    return Object.entries(editRow)
+    return Object.entries(editForm)
       .filter(
         ([key]) =>
           ![
@@ -207,9 +199,13 @@ export function RegistroProducaoWorkspace({
               <option value="true">Sim</option>
               <option value="false">Não</option>
             </select>
-          ) : typeof value === "number" ? (
+          ) : isProducaoNumericField(key, value) ? (
             <DecimalInput
-              value={String(editForm[key] ?? "")}
+              value={
+                editForm[key] === null || editForm[key] === undefined
+                  ? ""
+                  : String(editForm[key])
+              }
               onChange={(e) =>
                 setEditForm((prev) => ({
                   ...prev,
@@ -291,7 +287,7 @@ export function RegistroProducaoWorkspace({
       <RegistroProducaoDataTable
         ambiente={ambiente}
         onEdit={openEdit}
-        onDelete={ambiente === "refugo" ? setDeleteId : () => {}}
+        onDelete={() => {}}
       />
 
       <RegistroProducaoModal
@@ -325,27 +321,6 @@ export function RegistroProducaoWorkspace({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {ambiente === "refugo" && (
-        <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-          <DialogContent className="border-mansure-gray-light bg-white text-mansure-black">
-            <DialogHeader>
-              <DialogTitle>Confirmar exclusão</DialogTitle>
-              <DialogDescription className="text-mansure-dark">
-                Tem certeza que deseja excluir este registro?
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="mansureOutline" onClick={() => setDeleteId(null)}>
-                Cancelar
-              </Button>
-              <Button variant="destructive" onClick={handleConfirmDelete}>
-                Excluir
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 }

@@ -659,10 +659,16 @@ async function attachUserNames<T extends { criado_por: string }>(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function applyRecordsFilters(query: any, table: ProductionTable, filters: RecordsFilter) {
+function applyRecordsFilters(
+  query: any,
+  table: ProductionTable,
+  filters: RecordsFilter,
+  options?: { includeArchive?: boolean }
+) {
   let next = query.is("deleted_at", null);
+  const includeArchive = options?.includeArchive ?? true;
 
-  if (isArchivableProductionTable(table)) {
+  if (includeArchive && isArchivableProductionTable(table)) {
     if (filters.archivedOnly) {
       next = next.not("archived_at", "is", null);
     } else {
@@ -772,6 +778,7 @@ const SORTABLE_COLUMNS: Partial<Record<ProductionTable, Record<string, string>>>
     qtde_perdida: "qtde_perdida",
     motivo: "motivo",
     criado_em: "criado_em",
+    archived_at: "archived_at",
   },
 };
 
@@ -791,6 +798,29 @@ function applyRecordsSorting(query: any, table: ProductionTable, filters: Record
   return query.order("data", { ascending: false }).order("criado_em", { ascending: false });
 }
 
+function isMissingArchiveColumnError(error: { message?: string } | null) {
+  const message = error?.message?.toLowerCase() ?? "";
+  return (
+    message.includes("archived_at") &&
+    (message.includes("does not exist") ||
+      message.includes("could not find") ||
+      message.includes("schema cache"))
+  );
+}
+
+function buildRecordsQuery(
+  table: ProductionTable,
+  filters: RecordsFilter,
+  options?: { includeArchive?: boolean; count?: "exact" | undefined }
+) {
+  let query = getClient()
+    .from(table)
+    .select("*", options?.count ? { count: options.count } : undefined);
+  query = applyRecordsFilters(query, table, filters, options);
+  query = applyRecordsSorting(query, table, filters);
+  return query;
+}
+
 export async function getAllRecords(
   table: ProductionTable,
   page = 1,
@@ -800,11 +830,27 @@ export async function getAllRecords(
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  let query = getClient().from(table).select("*", { count: "exact" });
-  query = applyRecordsFilters(query, table, filters);
-  query = applyRecordsSorting(query, table, filters);
+  let { data, error, count } = await buildRecordsQuery(table, filters, {
+    includeArchive: true,
+    count: "exact",
+  }).range(from, to);
 
-  const { data, error, count } = await query.range(from, to);
+  if (
+    error &&
+    isArchivableProductionTable(table) &&
+    isMissingArchiveColumnError(error)
+  ) {
+    if (filters.archivedOnly) {
+      throw new Error(
+        "Arquivamento de refugo ainda não está ativo no banco. Aplique a migration 012_refugo_archive.sql no Supabase."
+      );
+    }
+
+    ({ data, error, count } = await buildRecordsQuery(table, filters, {
+      includeArchive: false,
+      count: "exact",
+    }).range(from, to));
+  }
 
   if (error) throw new Error(error.message);
 
@@ -823,11 +869,25 @@ export async function getRecordsForExport(
   filters: RecordsFilter = {},
   limit = 5000
 ): Promise<RecordRow[]> {
-  let query = getClient().from(table).select("*");
-  query = applyRecordsFilters(query, table, filters);
-  query = applyRecordsSorting(query, table, filters);
+  let { data, error } = await buildRecordsQuery(table, filters, {
+    includeArchive: true,
+  }).limit(limit);
 
-  const { data, error } = await query.limit(limit);
+  if (
+    error &&
+    isArchivableProductionTable(table) &&
+    isMissingArchiveColumnError(error)
+  ) {
+    if (filters.archivedOnly) {
+      throw new Error(
+        "Arquivamento de refugo ainda não está ativo no banco. Aplique a migration 012_refugo_archive.sql no Supabase."
+      );
+    }
+
+    ({ data, error } = await buildRecordsQuery(table, filters, {
+      includeArchive: false,
+    }).limit(limit));
+  }
 
   if (error) throw new Error(error.message);
 

@@ -61,13 +61,27 @@ export function normalizeRecordNumbers(
   record: Record<string, string | number | boolean | null>
 ): Record<string, string | number | boolean | null> {
   const result = { ...record };
+  const numericKeys = new Set([
+    "peso_registro",
+    "peso_registro_2",
+    "qtde_perdida",
+    "qtde_feita",
+    "qtde_caixas",
+    "percas",
+    "ciclo",
+  ]);
 
   for (const [key, value] of Object.entries(result)) {
+    const isNumeric = numericKeys.has(key) || typeof value === "number";
+    if (!isNumeric || typeof value === "boolean") continue;
+
+    if (value === null || value === undefined || value === "") {
+      result[key] = null;
+      continue;
+    }
+
     if (typeof value === "string") {
-      const parsed = parseDecimalInput(value);
-      if (parsed !== null) {
-        result[key] = parsed;
-      }
+      result[key] = parseDecimalInput(value);
     }
   }
 

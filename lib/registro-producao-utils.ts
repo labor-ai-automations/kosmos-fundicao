@@ -224,6 +224,22 @@ export function recordToExportRow(
   };
 }
 
+const PRODUCAO_NUMERIC_FIELD_KEYS = new Set([
+  "peso_registro",
+  "peso_registro_2",
+  "qtde_perdida",
+  "qtde_feita",
+  "qtde_caixas",
+  "percas",
+  "ciclo",
+]);
+
+export function isProducaoNumericField(key: string, value: unknown): boolean {
+  return PRODUCAO_NUMERIC_FIELD_KEYS.has(key) || typeof value === "number";
+}
+
+export { PRODUCAO_NUMERIC_FIELD_KEYS };
+
 const PRODUCAO_FIELD_LABELS: Record<string, string> = {
   codigo: "Código",
   codigo_2: "Código Par",

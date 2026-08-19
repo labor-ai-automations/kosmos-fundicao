@@ -36,13 +36,9 @@ import {
   HistoryTable,
   type HistoryColumn,
 } from "@/components/HistoryTable";
-import { zDecimal } from "@/lib/number-utils";
+import { zDecimal, zOptionalDecimal } from "@/lib/number-utils";
 import { observacaoFieldSchema } from "@/lib/producao-observacao";
 import { ObservacaoField } from "@/components/ObservacaoField";
-import {
-  PesoRegistroField,
-  parseOptionalNumber,
-} from "@/components/PesoRegistroField";
 import { DecimalInput } from "@/components/DecimalInput";
 
 const FUNDICOES = [
@@ -59,6 +55,7 @@ const refugoSchema = z.object({
   qtde_perdida: zDecimal(0),
   motivo: z.string().min(1, "Motivo obrigatório"),
   observacao: observacaoFieldSchema,
+  peso_registro: zOptionalDecimal(),
 });
 
 type RefugoFormData = z.infer<typeof refugoSchema>;
@@ -95,7 +92,6 @@ export function FormRefugo({
   hideSubmit = false,
 }: ProducaoFormProps = {}) {
   const { user } = useAuth();
-  const [pesoRegistro, setPesoRegistro] = useState<number | null>(null);
   const [history, setHistory] = useState<Refugo[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
@@ -114,6 +110,7 @@ export function FormRefugo({
       fundicao: FUNDICOES[0],
       motivo: REFUGO_MOTIVOS[0],
       observacao: "",
+      peso_registro: "",
     },
   });
 
@@ -148,7 +145,6 @@ export function FormRefugo({
     try {
       await insertRefugo({
         ...data,
-        peso_registro: pesoRegistro,
         criado_por: user.id,
       });
       toast.success("Registro salvo com sucesso");
@@ -159,8 +155,8 @@ export function FormRefugo({
         qtde_perdida: 0,
         motivo: REFUGO_MOTIVOS[0],
         observacao: "",
+        peso_registro: "",
       });
-      setPesoRegistro(null);
       setValue("codigo", "");
       if (modal) {
         onSaved?.();
@@ -212,7 +208,12 @@ export function FormRefugo({
                 codigo={field.value ?? ""}
                 onSelect={(item) => {
                   field.onChange(item.codigo);
-                  setPesoRegistro(parseOptionalNumber(getRefugoPesoPrincipal(item)));
+                  const peso = getRefugoPesoPrincipal(item);
+                  setValue(
+                    "peso_registro",
+                    peso !== null ? String(peso) : "",
+                    { shouldDirty: true }
+                  );
                   field.onBlur();
                 }}
                 error={errors.codigo?.message}
@@ -221,11 +222,18 @@ export function FormRefugo({
           />
 
           {codigo && (
-            <PesoRegistroField
-              label="Peso Peça"
-              value={pesoRegistro}
-              onChange={setPesoRegistro}
-            />
+            <div className="space-y-2">
+              <Label className="kosmos-label">Peso Peça (kg)</Label>
+              <DecimalInput
+                {...register("peso_registro")}
+                placeholder="Informe o peso da peça refugada"
+              />
+              {errors.peso_registro && (
+                <p className="text-sm text-red-400">
+                  {errors.peso_registro.message}
+                </p>
+              )}
+            </div>
           )}
 
           <div className="space-y-2">

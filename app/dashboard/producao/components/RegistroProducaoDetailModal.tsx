@@ -105,12 +105,16 @@ export function RegistroProducaoDetailModal({
   const { restoreMutation } = useArchiveRecord();
 
   const handleRestore = async () => {
-    await restoreMutation.mutateAsync({
-      id: record.id,
-      tabela: tabela as ArchivableProductionTable,
-      motivo: "Desarquivado pelo usuário",
-    });
-    onClose();
+    try {
+      await restoreMutation.mutateAsync({
+        id: record.id,
+        tabela: tabela as ArchivableProductionTable,
+        motivo: "Desarquivado pelo usuário",
+      });
+      onClose();
+    } catch {
+      // toast via onError
+    }
   };
 
   const criadoEm = new Date(record.criado_em);
